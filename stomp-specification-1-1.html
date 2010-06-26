@@ -39,7 +39,7 @@
   <div id='content'>
   	<div class='wrapper'>
       <h1 id='stomp_protocol_specification_version_11'>Stomp Protocol Specification, Version 1.1</h1>
-
+<div class='maruku_toc'><ul style='list-style: none;'><li><a href='#draft_status'>DRAFT STATUS</a></li><li><a href='#stomp_frames'>Stomp Frames</a><ul style='list-style: none;'><li><a href='#repeated_header_entries'>Repeated Header Entries</a></li></ul></li><li><a href='#connecting'>Connecting</a><ul style='list-style: none;'><li><a href='#connect_frame'>CONNECT Frame</a><ul style='list-style: none;'><li><a href='#future_compatibility'>Future Compatibility</a></li></ul></li><li><a href='#connected_frame'>CONNECTED Frame</a></li></ul></li><li><a href='#protocol_negotiation'>Protocol Negotiation</a></li><li><a href='#once_connected'>Once Connected</a></li><li><a href='#client_frames'>Client Frames</a><ul style='list-style: none;'><li><a href='#send'>SEND</a></li><li><a href='#subscribe'>SUBSCRIBE</a></li><li><a href='#unsubscribe'>UNSUBSCRIBE</a></li><li><a href='#begin'>BEGIN</a></li><li><a href='#commit'>COMMIT</a></li><li><a href='#ack'>ACK</a></li><li><a href='#abort'>ABORT</a></li><li><a href='#disconnect'>DISCONNECT</a></li></ul></li><li><a href='#standard_headers'>Standard Headers</a><ul style='list-style: none;'><li><a href='#receipt'>Receipt</a></li></ul></li><li><a href='#server_frames'>Server Frames</a><ul style='list-style: none;'><li><a href='#message'>MESSAGE</a></li><li><a href='#receipt'>RECEIPT</a></li><li><a href='#error'>ERROR</a></li></ul></li><li><a href='#heartbeating'>Heart-beating</a></li><li><a href='#augmented_bnf'>Augmented BNF</a></li><li><a href='#license'>License</a></li></ul></div>
 <h2 id='draft_status'>DRAFT STATUS</h2>
 
 <p>Version 1.1 of the specification is still being developed. This is only a draft document.</p>
@@ -54,7 +54,7 @@ header2:value2
 
 Body^@</code></pre>
 
-<p>The frame starts with a command string, followed by a newline, followed by header entries in <code>&lt;key&gt;</code>:<code>&lt;value&gt;</code> format. Each header entry is followed by a newline. A blank line indicates the end of the headers and beginning of the body. The body is then followed by the null byte. The examples in document will use <code>^@</code>, control-@ in ASCII, to represent the null byte. The null byte can be optionally be followed by multiple newlines. For more details, on how to parse Stomp frames, see the <a href='#augmented-bnf'>Augmented BNF</a> section of this document.</p>
+<p>The frame starts with a command string, followed by a newline, followed by header entries in <code>&lt;key&gt;</code>:<code>&lt;value&gt;</code> format. Each header entry is followed by a newline. A blank line indicates the end of the headers and beginning of the body. The body is then followed by the null byte (0x00). The examples in document will use <code>^@</code>, control-@ in ASCII, to represent the null byte. The null byte can be optionally be followed by multiple newlines. For more details, on how to parse Stomp frames, see the <a href='#augmented_bnf'>Augmented BNF</a> section of this document.</p>
 
 <h3 id='repeated_header_entries'>Repeated Header Entries</h3>
 
@@ -75,7 +75,7 @@ foo:Hello
 <p>A Stomp client initiates the stream or TCP connection to the server. The client must then send the <code>CONNECT</code> frame.</p>
 
 <pre><code>CONNECT
-version: 1.1
+accept-version:1.1
 host:stomp.github.org
           
 ^@</code></pre>
@@ -83,21 +83,23 @@ host:stomp.github.org
 <p>If the server accepts the connection attempt it will respond with a <code>CONNECTED</code> frame:</p>
 
 <pre><code>CONNECTED
-version: 1.1
+version:1.1
 
 ^@</code></pre>
 
 <p>The sever may reject any connection attempt. The server SHOULD respond back with a <code>ERROR</code> frame listing why the connection was rejected and then the sever will close the connection. Since Stomp servers must support clients which rapidly connect and disconnect, a server will likely only allow closed connections to linger for short time before the connection is reset. This means that a client may not fully receive the <code>ERROR</code> frame before the socket is reset.</p>
-<h3 id='frame-CONNECT'>CONNECT Frame</h3>
+
+<h3 id='connect_frame'>CONNECT Frame</h3>
+
 <p>Stomp 1.1 clients MUST set the following headers:</p>
 
 <ul>
 <li>
-<p><code>version</code>: The versions of the Stomp protocol the client supports. See <a href='#protocol-negotiation'>Protocol Negotiation</a> for more details.</p>
+<p><code>accept-version</code> : The versions of the Stomp protocol the client supports. See <a href='#protocol_negotiation'>Protocol Negotiation</a> for more details.</p>
 </li>
 
 <li>
-<p><code>host</code>: The host name that the socket was established against. This allows the server to implement virtual hosts.</p>
+<p><code>host</code> : The host name that the socket was established against. This allows the server to implement virtual hosts.</p>
 </li>
 </ul>
 
@@ -105,11 +107,11 @@ version: 1.1
 
 <ul>
 <li>
-<p><code>login</code>: The user id used to authenticate against a secured Stomp server.</p>
+<p><code>login</code> : The user id used to authenticate against a secured Stomp server.</p>
 </li>
 
 <li>
-<p><code>passcode</code>: The password used to authenticate against a secured Stomp server.</p>
+<p><code>passcode</code> : The password used to authenticate against a secured Stomp server.</p>
 </li>
 </ul>
 
@@ -118,75 +120,79 @@ version: 1.1
 <p>In future versions of the specification, the <code>CONNECT</code> frame will be renamed to <code>STOMP</code>. Stomp 1.1 servers should handle a <code>STOMP</code> frame the same way as the <code>CONNECT</code> frame. Stomp 1.1 clients should continue to use the <code>CONNECT</code> command to remain backward compatible with Stomp 1.0 servers.</p>
 
 <p>The reason to frame is being renamed is so that the protocol can more easily be differentiated from the HTTP protocol by a protocol sniffer/discriminator.</p>
-<h3 id='frame-CONNECTED'>CONNECTED Frame</h3>
+
+<h3 id='connected_frame'>CONNECTED Frame</h3>
+
 <p>Stomp 1.1 servers MUST set the following headers:</p>
 
 <ul>
-<li><code>version</code>: The versions of the Stomp protocol the server supports. See <a href='#protocol-negotiation'>Protocol Negotiation</a> for more details.</li>
+<li><code>version</code> : The version of the Stomp protocol the session will be using. See <a href='#protocol_negotiation'>Protocol Negotiation</a> for more details.</li>
 </ul>
 
 <p>Stomp 1.1 servers MAY set the following headers</p>
 
 <ul>
-<li><code>session</code>: A session id that uniquely identifies the session.</li>
+<li><code>session</code> : A session id that uniquely identifies the session.</li>
 </ul>
 <!--
 TODO: is this the reasoning for the session id? The client can use 
 the session id as the base to generate globally unique identifies 
 by appending a incrementing counter.
---><h2 id='protocol-negotiation'>Protocol Negotiation</h2>
-<p>From Stomp 1.1 and onwards, the <code>CONNECT</code> and <code>CONNECTED</code> frames MUST include the <code>version</code> header. It should be set to a space separated list of incrementing Stomp protocol versions that the client or server support. If the version header is missing, it means that only version 1.0 of the protocol is supported.</p>
+-->
+<h2 id='protocol_negotiation'>Protocol Negotiation</h2>
+
+<p>From Stomp 1.1 and onwards, the <code>CONNECT</code> frame MUST include the <code>accept-version</code> header. It should be set to a comma separated list of incrementing Stomp protocol versions that the client supports. If the <code>accept-version</code> header is missing, it means that the client only supports version 1.0 of the protocol.</p>
 
 <p>The protocol that will be used for the reset of the session will be the highest protocol version that both the client and server have in common.</p>
 
 <p>For example, if the client sends:</p>
 
 <pre><code>CONNECT
-version:1.0 1.1 2.0
+accept-version:1.0,1.1,2.0
 host:stomp.github.org
           
 ^@</code></pre>
 
-<p>and the server responds with:</p>
+<p>The server will respond back with the highest version of the protocol that it has in common with the client:</p>
 
 <pre><code>CONNECTED
-version:1.1 2.1
+version:1.1
 
 ^@</code></pre>
-
-<p>Then the reset of the session should use version 1.1 of the protocol.</p>
 
 <p>If the client and server do not share any common protocol versions, then the sever should respond with an <code>ERROR</code> frame that looks like:</p>
 
 <pre><code>ERROR
-version:1.1 2.1
+version:1.2,2.1
           
-Supported protocol versions are 1.1 2.1^@</code></pre>
+Supported protocol versions are 1.2 2.1^@</code></pre>
 
 <h2 id='once_connected'>Once Connected</h2>
 
 <p>Once the client is connected it may send any of the following frames:</p>
 
 <ul>
-<li><a href='#frame-SEND'>SEND</a></li>
+<li><a href='#send'>SEND</a></li>
 
-<li><a href='#frame-SUBSCRIBE'>SUBSCRIBE</a></li>
+<li><a href='#subscribe'>SUBSCRIBE</a></li>
 
-<li><a href='#frame-UNSUBSCRIBE'>UNSUBSCRIBE</a></li>
+<li><a href='#unsubscribe'>UNSUBSCRIBE</a></li>
 
-<li><a href='#frame-BEGIN'>BEGIN</a></li>
+<li><a href='#begin'>BEGIN</a></li>
 
-<li><a href='#frame-COMMIT'>COMMIT</a></li>
+<li><a href='#commit'>COMMIT</a></li>
 
-<li><a href='#frame-ABORT'>ABORT</a></li>
+<li><a href='#abort'>ABORT</a></li>
 
-<li><a href='#frame-ACK'>ACK</a></li>
+<li><a href='#ack'>ACK</a></li>
 
-<li><a href='#frame-DISCONNECT'>DISCONNECT</a></li>
+<li><a href='#disconnect'>DISCONNECT</a></li>
 </ul>
 
 <h2 id='client_frames'>Client Frames</h2>
-<h3 id='frame-SEND'>SEND</h3>
+
+<h3 id='send'>SEND</h3>
+
 <p>The <code>SEND</code> frame sends a message to a destination in the messaging system. It has one required header, <code>destination</code>, which indicates where to send the message. The body of the <code>SEND</code> frame is the message to be sent. For example:</p>
 
 <pre><code>SEND
@@ -200,7 +206,9 @@ hello queue a
 <p><code>SEND</code> supports a <code>transaction</code> header which allows for transaction sends.</p>
 
 <p>It is recommended that <code>SEND</code> frames include a <code>content-length</code> header which is a byte count for the length of the message body. If a <code>content-length</code> header is included, this number of bytes should be read, regardless of whether or not there are null characters in the body. The frame still needs to be terminated with a null byte and if a <code>content-length</code> is not specified, the first null byte encountered signals the end of the frame.</p>
-<h3 id='frame-SUBSCRIBE'>SUBSCRIBE</h3>
+
+<h3 id='subscribe'>SUBSCRIBE</h3>
+
 <p>The <code>SUBSCRIBE</code> frame is used to register to listen to a given destination. Like the <code>SEND</code> frame, the <code>SUBSCRIBE</code> frame requires a <code>destination</code> header indicating which destination to subscribe to. Any messages received on the subscription will henceforth be delivered as <code>MESSAGE</code> frames from the server to the client. The <code>ack</code> header is to control the message acknowledgement mode. The valid values for <code>ack</code> are <code>auto</code>, <code>client</code>, or <code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
 
 <p>Example:</p>
@@ -222,14 +230,18 @@ ack: client
 <p>Stomp brokers may support the <code>selector</code> header which allows you to specify an <a href='http://download.oracle.com/docs/cd/E17477_01/javaee/1.4/api/javax/jms/Message.html'>SQL 92 selector</a> on the message headers which acts as a filter for content based routing.</p>
 
 <p>You can also specify an <code>id</code> header which can then later on be used to <code>UNSUBSCRIBE</code> from the specific subscription as you may end up with overlapping subscriptions using selectors with the same destination. If an <code>id</code> header is supplied then Stomp brokers should append a <code>subscription</code> header to any <code>MESSAGE</code> frames which are sent to the client so that the client knows which subscription the message relates to. If using <a href='http://activemq.apache.org/wildcards.html'>Wildcards</a> and <a href='http://activemq.apache.org/selectors.html'>selectors</a> this can help clients figure out what subscription caused the message to be created.</p>
-<h3 id='frame-UNSUBSCRIBE'>UNSUBSCRIBE</h3>
+
+<h3 id='unsubscribe'>UNSUBSCRIBE</h3>
+
 <p>The <code>UNSUBSCRIBE</code> frame is used to remove an existing subscription - to no longer receive messages from that destination. It requires either a <code>destination</code> header or an <code>id</code> header (if the previous <code>SUBSCRIBE</code> operation passed an id value). Example:</p>
 
 <pre><code>UNSUBSCRIBE
 destination: /queue/a
 
 ^@</code></pre>
-<h3 id='frame-BEGIN'>BEGIN</h3>
+
+<h3 id='begin'>BEGIN</h3>
+
 <p><code>BEGIN</code> is used to start a transaction. Transactions in this case apply to sending and acknowledging - any messages sent or acknowledged during a transaction will be handled atomically based on the transaction.</p>
 
 <pre><code>BEGIN
@@ -238,7 +250,9 @@ transaction: &lt;transaction-identifier&gt;
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is required, and the transaction identifier will be used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, and <code>ACK</code> frames to bind them to the named transaction.</p>
-<h3 id='frame-COMMIT'>COMMIT</h3>
+
+<h3 id='commit'>COMMIT</h3>
+
 <p><code>COMMIT</code> is used to commit a transaction in progress.</p>
 
 <pre><code>COMMIT
@@ -247,7 +261,9 @@ transaction: &lt;transaction-identifier&gt;
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is required, you must specify which transaction to commit!</p>
-<h3 id='frame-ACK'>ACK</h3>
+
+<h3 id='ack'>ACK</h3>
+
 <p><code>ACK</code> is used to acknowledge consumption of a message from a subscription using client acknowledgment. When a client has issued a <code>SUBSCRIBE</code> frame with the <code>ack</code> header set to <code>client</code> any messages received from that destination will not be considered to have been consumed (by the server) until the message has been acknowledged via an <code>ACK</code>.</p>
 
 <p><code>ACK</code> has one required header, <code>message-id</code>, which must contain a value matching the <code>message-id</code> for the MESSAGE being acknowledged. Additionally, a <code>transaction</code> header may be specified, indicating that the message acknowledgment should be part of the named transaction.</p>
@@ -259,7 +275,9 @@ transaction: &lt;transaction-identifier&gt;
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is optional.</p>
-<h3 id='frame-ABORT'>ABORT</h3>
+
+<h3 id='abort'>ABORT</h3>
+
 <p><code>ABORT</code> is used to roll back a transaction in progress.</p>
 
 <pre><code>ABORT
@@ -268,7 +286,9 @@ transaction: &lt;transaction-identifier&gt;
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is required, you must specify which transaction to abort!</p>
-<h3 id='frame-DISCONNECT'>DISCONNECT</h3>
+
+<h3 id='disconnect'>DISCONNECT</h3>
+
 <p><code>DISCONNECT</code> does a graceful disconnect from the server. It is quite polite to use this before closing the socket.</p>
 
 <pre><code>DISCONNECT
@@ -278,7 +298,9 @@ transaction: &lt;transaction-identifier&gt;
 <h2 id='standard_headers'>Standard Headers</h2>
 
 <p>Some headers may be used, and have special meaning, with most packets</p>
-<h3 id='header-receipt'>Receipt</h3>
+
+<h3 id='receipt'>Receipt</h3>
+
 <p>Any client frame other than <code>CONNECT</code> may specify a <code>receipt</code> header with an arbitrary value. This will cause the server to acknowledge receipt of the frame with a <code>RECEIPT</code> frame which contains the value of this header as the value of the <code>receipt-id</code> header in the <code>RECEIPT</code> packet.</p>
 
 <pre><code>SEND
@@ -292,13 +314,15 @@ Hello a!^@</code></pre>
 <p>The server will, on occasion, send frames to the client (in additional to the initial <code>CONNECTED</code> frame). These frames may be one of:</p>
 
 <ul>
-<li><a href='#frame-MESSAGE'>MESSAGE</a></li>
+<li><a href='#message'>MESSAGE</a></li>
 
-<li><a href='#frame-RECEIPT'>RECEIPT</a></li>
+<li><a href='#receipt'>RECEIPT</a></li>
 
-<li><a href='#frame-ERROR'>ERROR</a></li>
+<li><a href='#error'>ERROR</a></li>
 </ul>
-<h3 id='frame-MESSAGE'>MESSAGE</h3>
+
+<h3 id='message'>MESSAGE</h3>
+
 <p><code>MESSAGE</code> frames are used to convey messages from subscriptions to the client. The <code>MESSAGE</code> frame will include a header, <code>destination</code>, indicating the destination the message was delivered to. It will also contain a <code>message-id</code> header with a unique identifier for that message. The frame body contains the contents of the message:</p>
 
 <pre><code>MESSAGE
@@ -308,7 +332,9 @@ message-id: &lt;message-identifier&gt;
 hello queue a^@</code></pre>
 
 <p>It is recommended that <code>MESSAGE</code> frames include a <code>content-length</code> header which is a byte count for the length of the message body. If a <code>content-length</code> header is included, this number of bytes should be read, regardless of whether or not there are null characters in the body. The frame still needs to be terminated with a null byte, and if a <code>content-length</code> is not specified the first null byte encountered signals the end of the frame.</p>
-<h3 id='frame-RECEIPT'>RECEIPT</h3>
+
+<h3 id='receipt'>RECEIPT</h3>
+
 <p>Receipts are issued from the server when the client has requested a receipt for a given frame. A <code>RECEIPT</code> frame will include the header <code>receipt-id</code>, where the value is the value of the <code>receipt</code> header in the frame which this is a receipt for.</p>
 
 <pre><code>RECEIPT
@@ -317,7 +343,9 @@ receipt-id:message-12345
 ^@</code></pre>
 
 <p>The receipt body will be empty.</p>
-<h3 id='frame-ERROR'>ERROR</h3>
+
+<h3 id='error'>ERROR</h3>
+
 <p>The server may send <code>ERROR</code> frames if something goes wrong. The error frame should contain a <code>message</code> header with a short description of the error, and the body may contain more detailed information (or may be empty).</p>
 
 <pre><code>ERROR
@@ -335,7 +363,9 @@ for message propagation.
 ^@</code></pre>
 
 <p>It is recommended that <code>ERROR</code> frames include a <code>content-length</code> header which is a byte count for the length of the message body. If a <code>content-length</code> header is included, this number of bytes should be read, regardless of whether or not there are null characters in the body. The frame still needs to be terminated with a null byte, and if a <code>content-length</code> is not specified the first null byte encountered signals the end of the frame.</p>
-<h2 id='heart-beating'>Heart-beating</h2>
+
+<h2 id='heartbeating'>Heart-beating</h2>
+
 <p>Heart-beating can optionally be used to test the healthiness of the underlying TCP connection and to make sure that the remote end is alive and kicking.</p>
 
 <p>In order to enable heart-beating, each party has to declare what it can do and what it would like the other party to do. This happens at the very beginning of the Stomp session, by adding a <code>heart-beat</code> header to the <code>CONNECT</code> and <code>CONNECTED</code> frames.</p>
@@ -411,7 +441,9 @@ heart-beat:&lt;sx&gt;,&lt;sy&gt;</code></pre>
 <p>because of timing inaccuracies, the receiver SHOULD be tolerant and take into account an error margin</p>
 </li>
 </ul>
-<h2 id='augmented-bnf'>Augmented BNF</h2>
+
+<h2 id='augmented_bnf'>Augmented BNF</h2>
+
 <p>A Stomp session can be more formally described using the Backus-Naur Form (BNF) grammar used in the HTTP/1.1 <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.1'>rfc2616</a>.</p>
 
 <pre><code>NL                  = &lt;US-ASCII new line (line feed) (octect 10)&gt;
@@ -453,7 +485,9 @@ header-value        = 1*&lt;any CHAR except NL&gt;
 content             = text-content | binary-content
 text-content        = 1*&lt;any OCTET except NULL&gt;
 binary-content      = 1*OCTECT</code></pre>
+
 <h2 id='license'>License</h2>
+
 <p>This specification is licensed under the <a href='http://creativecommons.org/licenses/by/2.5/'>Creative Commons Attribution v2.5</a> license.</p>
   	</div>
   </div>
