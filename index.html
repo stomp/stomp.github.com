@@ -1,87 +1,107 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> 
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
 <html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="description" content="Simple Text Oriented Messaging Protocol">
-    <meta name="keywords" content="stomp messaging mom middleware specification">
-    <link href="styles/impact/css/site.css" rel="stylesheet" type="text/css">
-    <title>Stomp</title>
-
-
-
-</head>
-<body>
-  
-  <div id="navigation">
-  	<div class="wrapper">
-      <ul><li class="webgen-menu-level1 webgen-menu-item-selected"><span>Stomp</span></li><li class="webgen-menu-level1"><a href="stomp-specification-1-0.html">1.0</a></li></ul>
-  	</div>
-  </div>
-  
-
-  <div id="overview">
-    <div class="wrapper">
-      
-      <div class="logo">
-        <img alt="STOMP Specification logo" src="images/project-logo.png">
-      </div>
-      
-      <div class="message">
-        <p>Simple Text Oriented Messaging Protocol</p>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="The Simple Text Oriented Messaging Protocol" name="description"/>
+    <meta content="stomp,messaging,mom,middleware,specification" name="keywords"/>
+    <meta content="STOMP Specification" name="author"/>
+    <link type="text/css" rel="stylesheet" href="styles/impact/css/pygmentize.css"/>
+    <link type="text/css" rel="stylesheet" href="styles/impact/css/site.css"/>
+    <title></title>
+  </head>
+  <body>
+    <div id="navigation">
+      <div class="wrapper">
+<ul>
+<li><a href="index.html">Stomp</a></li>
+<li><a href="stomp-specification-1.0.html">1.0</a></li>
+</ul>        <div></div>
       </div>
     </div>
-  </div>
-
-
-
-
-
-  <div id='content'>
-  	<div class='wrapper'>
-      <div class='left'>
-  <h1 id='what_is_it'>What is it?</h1>
+    <div id="overview">
+      <div class="wrapper">
+        <div class="logo">
+          <img src="images/project-logo.png" alt="STOMP Specification logo"/>
+        </div>
+        <div class="message">
+<p>The Simple Text Oriented Messaging Protocol</p>
+          <div></div>
+        </div>
+      </div>
+    </div>
+    <div id="content">
+      <div class="wrapper">
+<div class="left">
+  <h1 id = "What_is_it_">What is it?</h1>
 </div>
-<div class='right'>
+<div class="right">
   <p>Stomp is the Simple (or Streaming) Text Orientated Messaging Protocol.</p>
-  
-  <p>Stomp provides an interoperable wire format so that Stomp clients can communicate with any Stomp message broker to provide easy and widespread messaging interoperability among many languages, platforms and brokers.</p>
+
+  <p>Stomp provides an interoperable wire format so that Stomp clients can
+  communicate with any Stomp message broker to provide easy and widespread
+  messaging interoperability among many languages, platforms and brokers.</p>
 </div>
-<div class='left'>
-  <h1 id='simple_design'>Simple Design</h1>
+<div class="left">
+  <h1 id = "Simple_Design">Simple Design</h1>
 </div>
-<div class='right'>
-  <p>Stomp is a very simple and easy to implement protocol, coming from the HTTP school of design; the server side may be hard to implement well, but it is very easy to write a client to get yourself connected. For example you can use Telnet to login to any Stomp broker and interact with it!</p>
-  
-  <p>Many developers have told us that they have managed to write a Stomp client in a couple of <em>hours</em> to in their particular language, runtime or platform into the Stomp network. So if your favored language/runtime of choice does not offer a good enough Stomp client don&#8217;t be afraid to write one.</p>
+<div class="right">
+  <p>Stomp is a very simple and easy to implement protocol, coming from the HTTP
+  school of design; the server side may be hard to implement well, but it is very
+  easy to write a client to get yourself connected. For example you can use
+  Telnet to login to any Stomp broker and interact with it&#33;</p>
+
+  <p>Many developers have told us that they have managed to write a Stomp client in
+  a couple of <em>hours</em> to in their particular language, runtime or platform
+  into the Stomp network. So if your favored language/runtime of choice does not
+  offer a good enough Stomp client don't be afraid to write one.</p>
+  <div></div>
 </div>
-<div class='left'>
-  <h1 id='get_it'>Get It</h1>
+<div class="left">
+  <h1 id = "Get_It">Get It</h1>
+  <div></div>
 </div>
-<div class='right'>
+<div class="right">
   <p>The latest version of the specification can be found at:</p>
-  
+
   <ul>
-  <li><a href='stomp-specification-1-0.html'>STOMP 1.0</a></li>
+  <li><a href="stomp-specification-1.0.html">STOMP 1.0</a></li>
   </ul>
 </div>
-<div class='left'>
-  <h1 id='mailing_list'>Mailing List</h1>
+<div class="left">
+  <h1 id = "Mailing_List">Mailing List</h1>
+  <div></div>
 </div>
-<div class='right'>
+<div class="right">
   <p>If your are a Stomp implementer, we would we love you to join the specification discussions.</p>
-  
-  <p>The main mailing list is hosted at the <a href='http://groups.google.com/group/stomp-spec'>stomp-spec google group</a>.</p>
-  
+
+  <p>The main mailing list is hosted at the <a href="http://groups.google.com/group/stomp-spec">stomp-spec google group</a>.</p>
+
   <ul>
-  <li><a href='http://groups.google.com/group/stomp-spec'>http://groups.google.com/group/stomp-spec</a></li>
+  <li><a href="http://groups.google.com/group/stomp-spec">http://groups.google.com/group/stomp-spec</a></li>
   </ul>
-  
+
   <p>Be aware that to reduce spam your first post will be moderated through; so please be patient. (Unfortunately we get a lot of spam)</p>
 </div>
 
-  	</div>
-  </div>
-
-
-</body>
+        <div></div>
+      </div>
+    </div>
+  </body>
 </html>
