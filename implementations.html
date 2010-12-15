@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> 
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="The Simple Text Oriented Messaging Protocol" name="description"/>
+    <meta content="stomp,messaging,mom,middleware,specification" name="keywords"/>
+    <meta content="STOMP Specification" name="author"/>
+    <link type="text/css" rel="stylesheet" href="styles/impact/css/pygmentize.css"/>
+    <link type="text/css" rel="stylesheet" href="styles/impact/css/site.css"/>
+    <title></title>
+  </head>
+  <body>
+    <div id="navigation">
+      <div class="wrapper">
+<ul>
+<li><a href="index.html">STOMP</a></li>
+<li><a href="stomp-specification-1.0.html">1.0</a></li>
+<li><a href="stomp-specification-1.1.html">1.1</a></li>
+<li><a href="implementations.html">Implementations</a></li>
+</ul>        <div></div>
+      </div>
+    </div>
+    <div id="overview">
+      <div class="wrapper">
+        <div class="logo">
+          <img src="images/project-logo.png" alt="STOMP Specification logo"/>
+        </div>
+        <div class="message">
+<p>The Simple Text Oriented Messaging Protocol</p>
+          <div></div>
+        </div>
+      </div>
+    </div>
+    <div id="content">
+      <div class="wrapper">
+<h1 id = "Servers">Servers</h1>
+
+<p>The following is a list of the various STOMP compliant message 
+servers which can be used with any of the STOMP clients.</p>
+
+<ul>
+<li><p><a href="http://activemq.apache.org/">Apache ActiveMQ</a> is considered by many to be
+the STOMP 1.0 reference implementation.</p></li>
+<li><p><a href="http://activemq.apache.org/apollo">Apache Apollo</a> an redesigned version of 
+ActiveMQ focused on STOMP messaging.</p></li>
+<li><p><a href="http://code.google.com/p/coilmq/">CoilMQ</a> is a lightweight pure Python Stomp
+broker inspired by StompServer.</p></li>
+<li><p><a href="http://www.germane-software.com/software/Java/Gozirra/">Gozirra</a> is a
+lightweight Java Stomp broker</p></li>
+<li><p><a href="http://www.jboss.org/hornetq">HornetQ</a> puts the buzz in messaging</p></li>
+<li><p><a href="http://www.morbidq.com/">MorbidQ</a> is a STOMP publish/subscribe server with absolutely 
+no potential to cluster. It supports publish/subscribe topics, and runs as a 
+single node.</p></li>
+<li><p><a href="http://www.thuswise.org/sprinkle/index.html">Sprinkle</a> is written in Python 
+and runs on Unix type platforms.</p></li>
+<li><p><a href="http://stomp.codehaus.org/StompConnect">StompConnect</a> provides a bridge to
+any other JMS provider. This means that all major commercial and open source
+message brokers can be used with Stomp!</p></li>
+<li><p><a href="http://stompserver.rubyforge.org/">StompServer</a> is a lightweight pure Ruby
+Stomp server</p></li>
+</ul>
+
+<h1 id = "Clients">Clients</h1>
+
+<p>Pick the right Stomp client for your particular language or platform.</p>
+<br/>
+<table class="clients">
+  <tr>
+    <th>Language</th>
+    <th>Libraries</th>
+    <div></div>
+  </tr>
+  <tr>
+    <td>
+      <em>C</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://stomp.codehaus.org/C">libstomp</a> is an APR based c library</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Dynamic C</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://code.google.com/p/dstomp/">dstomp</a> is a STOMP client library
+  written in Dynamic C for Rabbit</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>C</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://stomp.codehaus.org/C">libstomp</a> is an APR based c library</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Dynamic C</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://code.google.com/p/dstomp/">dstomp</a> is a STOMP client library
+  written in Dynamic C for Rabbit</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>C++</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://activemq.apache.org/cms/">Apache CMS</a>: is a JMS-like API for C++.</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>C# and .Net</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://activemq.apache.org/nms/">Apache NMS</a>: is a JMS-like API for .Net</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Delphi and FreePascal</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://code.google.com/p/delphistompclient/">delphistompclient</a>: is a
+  STOMP client for Embarcadero Delphi and FreePascal. <a href="http://www.danieleteti.it/?page&#95;id=214">more
+  info</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Erlang</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://www.hccp.org/erlang-stomp-client.html">stomp.erl</a> is a STOMP client
+  for Erlang</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Flash</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://code.google.com/p/as3-stomp/">as3-stomp</a> is an actionscript 3
+  implementation of the STOMP protocol. <a href="http://flexonrails.net/?cat=26">more
+  info</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>haXe</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="hxstomp|http://code.google.com/p/hxstomp/">hxStomp</a> is a TCP socket-based
+  Stomp protocol client library written for the <a href="http://www.haxe.org">Haxe</a>
+  language.</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Java</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://www.germane-software.com/software/Java/Gozirra/">Gozirra</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Objective-C</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="https://github.com/juretta/objc-stomp">objc-stomp</a> is a simple STOMP
+  client based on AsynSocket. <a href="http://dev.coravy.com/wiki/display/OpenSource/Stomp+client+for+Objective-C">more
+  info</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Perl</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://search.cpan.org/~lcons/Net-STOMP-Client-0.9.4/lib/Net/STOMP/Client.pm">Net::STOMP::Client</a>
+  Perl module is available on CPAN</li>
+  <li><a href="http://search.cpan.org/~ash/Net-Stomp-0.38/lib/Net/Stomp.pm">Net::Stomp</a>
+  Perl module is available on CPAN</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>PHP</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://www.php.net/manual/en/book.stomp.php">stomp</a> official php extension
+  available at <a href="http://pecl.php.net/package/stomp">pecl</a></li>
+  <li><a href="http://stomp.fusesource.org/documentation/php/book.html">stomp-php</a> is the
+  <a href="http://fusesource.org">FuseSource</a> PHP client implementation</li>
+  <li><a href="http://framework.zend.com/manual/en/zend.queue.stomp.html">Zend&#95;Queue&#95;Stomp</a>
+  for Zend PHP clients</li>
+  <li><a href="http://code.google.com/p/simplisticstompclient/">simplisticstompclient</a> is
+  a simpler STOMP client for PHP</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Pike</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://modules.gotpike.org/module&#95;info.html?module&#95;id=24">Public.Protocols.Stomp</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Python</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://www.makemyshow.com/stompy.shtml">stompy</a></li>
+  <li><a href="http://code.google.com/p/stomppy/">stomp.py</a></li>
+  <li><a href="http://code.google.com/p/pyactivemq/">pyactivemq</a></li>
+  <li><a href="http://code.google.com/p/stomper/">stomper</a></li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+  <tr>
+    <td>
+      <em>Ruby and Rails</em>
+    </td>
+    <td>
+  <ul>
+  <li><a href="http://rubyforge.org/projects/stomp/">stomp gem</a> it's source is at
+  http://gitorious.org/stomp</li>
+  <li><a href="http://code.google.com/p/activemessaging/">activemessaging</a> s an attempt
+  to bring the simplicity and elegance of Rails development to the world of
+  messaging</li>
+  </ul>
+
+    </td>
+  </tr>
+  <div></div>
+</table>
+
+        <div></div>
+      </div>
+    </div>
+  </body>
+</html>
