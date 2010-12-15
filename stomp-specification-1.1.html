@@ -325,9 +325,7 @@ the server MUST send the client an <code>ERROR</code> frame and disconnect the c
 the <code>SEND</code> frame, the <code>SUBSCRIBE</code> frame requires a <code>destination</code> header indicating
 which destination to subscribe to. Any messages received on the subscription
 will henceforth be delivered as <code>MESSAGE</code> frames from the server to the client.
-The <code>ack</code> header is to control the message acknowledgement mode. The valid
-values for <code>ack</code> are <code>auto</code>, <code>client</code>, or <code>client-individual</code>. If the header
-is not set, it defaults to <code>auto</code>.</p>
+The <code>ack</code> header controls the message acknowledgement mode.</p>
 
 <p>Example:</p>
 
@@ -341,9 +339,9 @@ ack:client
 <p>If the sever cannot successfully create the subscription, for any reason,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
-<p>STOMP servers may optionally support additional headers which allows you to
-further customize the delivery semantics of the subscriptions. Consult your
-server's documentation for details.</p>
+<p>STOMP servers may support additional server specific headers to customize the
+delivery semantics of the subscription. Consult your server's documentation for
+details.</p>
 
 <h4>SUBSCRIBE id Header</h4>
 
@@ -354,11 +352,14 @@ relate subsequent <code>ACK</code> and <code>UNSUBSCRIBE</code> frames to the or
 
 <h4>SUBSCRIBE ack Header</h4>
 
+<p>The valid values for the <code>ack</code> header are <code>auto</code>, <code>client</code>, or
+<code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
+
 <p>When the the <code>ack</code> mode is <code>auto</code>, then the client does not need to send the
 server <code>ACK</code> frames for the messages it receives. The server will assume the
 client has received the message as soon as it sends it to the the client. This
-acknowledgment mode can cause messages being transmitted to the client to
-get dropped.</p>
+acknowledgment mode can cause messages being transmitted to the client to get
+dropped.</p>
 
 <p>When the the <code>ack</code> mode is <code>client</code>, then the client must send the server <code>ACK</code>
 frames for the messages it processes. If the connection fails before a client
