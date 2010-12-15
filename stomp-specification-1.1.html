@@ -30,8 +30,9 @@
     <div id="navigation">
       <div class="wrapper">
 <ul>
-<li><a href="index.html">Stomp</a></li>
+<li><a href="index.html">STOMP</a></li>
 <li><a href="stomp-specification-1.0.html">1.0</a></li>
+<li><a href="stomp-specification-1.1.html">1.1</a></li>
 </ul>        <div></div>
       </div>
     </div>
@@ -39,9 +40,7 @@
       <div class="wrapper">
 <h1 id = "STOMP_Protocol_Specification__Version_1_1">STOMP Protocol Specification, Version 1.1</h1>
 
-<ul>
-<li>Table of contents
-<div class="toc"><ul style="list-style:none;">
+<p><div class="toc"><ul style="list-style:none;">
   <li><a href="#STOMP_Protocol_Specification__Version_1_1">STOMP Protocol Specification, Version 1.1</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#DRAFT_STATUS">DRAFT STATUS</a></li>
@@ -82,8 +81,7 @@
     <li><a href="#Augmented_BNF">Augmented BNF</a></li>
     <li><a href="#License">License</a></li>
   </ul></li>
-</ul></li>
-</ul>
+</ul></p>
 
 <h2 id = "DRAFT_STATUS">DRAFT STATUS</h2>
 
@@ -107,7 +105,7 @@ header entries in <code>&lt;key&gt;</code>:<code>&lt;value&gt;</code> format. Ea
 a newline. A blank line indicates the end of the headers and beginning of the
 body. The body is then followed by the null byte (0x00). The examples in
 document will use <code>^@</code>, control-@ in ASCII, to represent the null byte. The
-null byte can be optionally be followed by multiple newlines. For more
+null byte can be optionally followed by multiple newlines. For more
 details, on how to parse STOMP frames, see the <a href="#augmented&#95;bnf">Augmented
 BNF</a> section of this document.</p>
 
@@ -181,7 +179,7 @@ reset.</p>
 
 <h3 id = "CONNECT_or_STOMP_Frame">CONNECT or STOMP Frame</h3>
 
-<p>Stomp servers should handle a <code>STOMP</code> frame the same as a <code>CONNECT</code> frame.
+<p>STOMP servers should handle a <code>STOMP</code> frame the same as a <code>CONNECT</code> frame.
 STOMP 1.1 clients should continue to use the <code>CONNECT</code> command to remain
 backward compatible with STOMP 1.0 servers.</p>
 
@@ -343,10 +341,14 @@ ack:client
 <p>If the sever cannot successfully create the subscription, for any reason,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
+<p>STOMP servers may optionally support additional headers which allows you to
+further customize the delivery semantics of the subscriptions. Consult your
+server's documentation for details.</p>
+
 <h4>SUBSCRIBE id Header</h4>
 
 <p>You MUST specify an <code>id</code> header to uniquely identify the subscription within
-the stomp connection session.  Since a single connection can have multiple open
+the STOMP connection session.  Since a single connection can have multiple open
 subscriptions with a broker, the <code>id</code> header allows the client and broker to 
 relate subsequent <code>ACK</code> and <code>UNSUBSCRIBE</code> frames to the original subscription.</p>
 
@@ -371,18 +373,10 @@ like the <code>client</code> ack mode except that the <code>ACK</code> frames se
 not cumulative. This means that an <code>ACK</code> for a subsequent message should
 not cause a previous message to get acknowledged.</p>
 
-<h4>SUBSCRIBE selector Header</h4>
-
-<p>STOMP brokers may optionally support a selector header which allows you to 
-define a filter which is applied on the server side to limit the messages
-that are delivered to the subscription from the destination.  The syntax 
-for the value of the selector header is server specific, so consult your
-server's documentation for details on how to construct a selector.</p>
-
 <h3 id = "UNSUBSCRIBE">UNSUBSCRIBE</h3>
 
 <p>The <code>UNSUBSCRIBE</code> frame is used to remove an existing subscription.  Once the subscription is
-removed the stomp connections will no longer receive messages from that destination. 
+removed the STOMP connections will no longer receive messages from that destination. 
 It requires the <code>id</code> header matches the <code>id</code> value of previous <code>SUBSCRIBE</code> operation. 
 Example:</p>
 
@@ -470,7 +464,7 @@ is received.</p>
 
 <h2 id = "Standard_Headers">Standard Headers</h2>
 
-<p>Some headers may be used, and have special meaning, with most packets</p>
+<p>Some headers may be used, and have special meaning, with most frames.</p>
 
 <h3 id = "Header_content-length">Header content-length</h3>
 
@@ -484,10 +478,10 @@ the end of the frame.</p>
 
 <h3 id = "Header_receipt">Header receipt</h3>
 
-<p>Any client frame other than <code>CONNECT</code> may specify a <code>receipt</code> header with an
-arbitrary value. This will cause the server to acknowledge receipt of the
-frame with a <code>RECEIPT</code> frame which contains the value of this header as the
-value of the <code>receipt-id</code> header in thehe <code>RECEIPT</code> packet.</p>
+<p>Any client frame other than <code>CONNECT</code> and <code>DISCONNECT</code> may specify a <code>receipt</code>
+header with an arbitrary value. This will cause the server to acknowledge
+receipt of the frame with a <code>RECEIPT</code> frame which contains the value of this
+header as the value of the <code>receipt-id</code> header in the <code>RECEIPT</code> frame.</p>
 
 <pre><code>SEND
 destination:/queue/a
@@ -553,7 +547,7 @@ the body may contain more detailed information (or may be empty).</p>
 
 <pre><code>ERROR
 receipt-id:message-12345
-message: malformed packet received
+message: malformed frame received
 
 The message:
 -----
