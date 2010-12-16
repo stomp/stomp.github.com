@@ -70,6 +70,7 @@
     <li><a href="#Standard_Headers">Standard Headers</a></li>
     <li><ul style="list-style:none;">
       <li><a href="#Header_content-length">Header content-length</a></li>
+      <li><a href="#Header_content-type">Header content-type</a></li>
       <li><a href="#Header_receipt">Header receipt</a></li>
     </ul></li>
     <li><a href="#Server_Frames">Server Frames</a></li>
@@ -102,13 +103,28 @@ header2:value2
 Body^@</code></pre>
 
 <p>The frame starts with a command string, followed by a newline, followed by
-header entries in <code>&lt;key&gt;</code>:<code>&lt;value&gt;</code> format. Each header entry is followed by
+header entries in <code>&lt;key&gt;:&lt;value&gt;</code> format. Each header entry is followed by
 a newline. A blank line indicates the end of the headers and beginning of the
 body. The body is then followed by the null byte (0x00). The examples in
 document will use <code>^@</code>, control-@ in ASCII, to represent the null byte. The
 null byte can be optionally followed by multiple newlines. For more
 details, on how to parse STOMP frames, see the <a href="#augmented&#95;bnf">Augmented
 BNF</a> section of this document.</p>
+
+<p>The headers are encoded in UTF-8. Since the colon and newline characters are
+used to delimit the keys and values, c style string literal escapes are used
+to encode any colons and newlines that may need to be transported within the
+headers. When decoding frame headers, the following transformations should
+get applied:</p>
+
+<ul>
+<li><code>\n</code> translates to newline (octect 10)</li>
+<li><code>\c</code> translates to <code>:</code></li>
+<li><code>\\</code> translates to <code>\</code></li>
+</ul>
+
+<p>Conversely when encoding frame headers, the reverse transformation should be
+applied.</p>
 
 <p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames can have a body. All other
 frames MUST not have a body.</p>
@@ -221,12 +237,6 @@ See <a href="#protocol&#95;negotiation">Protocol Negotiation</a> for more detail
 <li><code>session</code> : A session id that uniquely identifies the session.</li>
 </ul>
 
-<!--
-TODO: is this the reasoning for the session id? The client can use 
-the session id as the base to generate globally unique identifies 
-by appending a incrementing counter.
--->
-
 <h2 id = "Protocol_Negotiation">Protocol Negotiation</h2>
 
 <p>From STOMP 1.1 and onwards, the <code>CONNECT</code> frame MUST include the
@@ -259,6 +269,7 @@ sever should respond with an <code>ERROR</code> frame that looks like:</p>
 
 <pre><code>ERROR
 version:1.2,2.1
+content-type:text/plain
 
 Supported protocol versions are 1.2 2.1^@</code></pre>
 
@@ -287,6 +298,7 @@ message. The body of the <code>SEND</code> frame is the message to be sent. For 
 
 <pre><code>SEND
 destination:/queue/a
+content-type:text/plain
 
 hello queue a
 ^@</code></pre>
@@ -309,7 +321,8 @@ on the message.</p>
 <p><code>SEND</code> supports a <code>transaction</code> header which allows for transaction sends.</p>
 
 <p><code>SEND</code> frames should include a 
-<a href="#Header&#95;content-length"><code>content-length</code></a> header if a body is present.</p>
+<a href="#Header&#95;content-length"><code>content-length</code></a> and 
+<a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <p>An application may add any arbitrary user defined headers to the <code>SEND</code> frame.
 User defined headers are typically used to allow consumers to filter
@@ -478,6 +491,23 @@ the body. The frame still needs to be terminated with a null byte. If a
 <code>content-length</code> is not specified, the first null byte encountered signals
 the end of the frame.</p>
 
+<h3 id = "Header_content-type">Header content-type</h3>
+
+<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames should include a <code>content-type</code>
+header if a frame body is present. It should be set to a mime type which
+describes the format of the body to help the receiver of the frame interpret
+it's contents. If the <code>content-type</code> header is not set, the receiver should
+consider the body to be a binary blob.</p>
+
+<p>The implied text encoding for mime types starting with <code>text/</code> is UTF-8. If
+you are using a text based mime type with a different encoding then you
+should append <code>;charset=&lt;encoding&gt;</code> to the mime type. For example,
+<code>text/html;charset=utf-16</code> should be used if your sending a html body in
+UTF-16 encoding. The <code>;charset=&lt;encoding&gt;</code> should also get appended to any
+non <code>text/</code> mime types which can be interpreted as text. A good example of
+this would be a UTF-8 encoded XML. It's <code>content-type</code> should get set to
+<code>application/xml;charset=utf-8</code></p>
+
 <h3 id = "Header_receipt">Header receipt</h3>
 
 <p>Any client frame other than <code>CONNECT</code> and <code>DISCONNECT</code> may specify a <code>receipt</code>
@@ -513,13 +543,15 @@ the message. The frame body contains the contents of the message:</p>
 
 <pre><code>MESSAGE
 subscription:0
-destination:/queue/a
 message-id:007
+destination:/queue/a
+content-type:text/plain
 
 hello queue a^@</code></pre>
 
 <p><code>MESSAGE</code> frames should include a 
-<a href="#Header&#95;content-length"><code>content-length</code></a> header if a body is present.</p>
+<a href="#Header&#95;content-length"><code>content-length</code></a> and 
+<a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <p><code>MESSAGE</code> frames will also include all user defined headers that were present
 when the message was sent to the destination in addition to headers that
@@ -549,6 +581,7 @@ the body may contain more detailed information (or may be empty).</p>
 
 <pre><code>ERROR
 receipt-id:message-12345
+content-type:text/plain
 message: malformed frame received
 
 The message:
@@ -571,7 +604,8 @@ frame SHOULD set the <code>receipt-id</code> header to match the value of the <c
 header of the frame which the error is related to.</p>
 
 <p><code>ERROR</code> frames should include a 
-<a href="#Header&#95;content-length"><code>content-length</code></a> header if a body is present.</p>
+<a href="#Header&#95;content-length"><code>content-length</code></a> and 
+<a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <h2 id = "Heart-beating">Heart-beating</h2>
 
