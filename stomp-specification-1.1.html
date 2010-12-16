@@ -62,6 +62,7 @@
       <li><a href="#SUBSCRIBE">SUBSCRIBE</a></li>
       <li><a href="#UNSUBSCRIBE">UNSUBSCRIBE</a></li>
       <li><a href="#ACK">ACK</a></li>
+      <li><a href="#NACK">NACK</a></li>
       <li><a href="#BEGIN">BEGIN</a></li>
       <li><a href="#COMMIT">COMMIT</a></li>
       <li><a href="#ABORT">ABORT</a></li>
@@ -82,7 +83,7 @@
     <li><a href="#Augmented_BNF">Augmented BNF</a></li>
     <li><a href="#License">License</a></li>
   </ul></li>
-</ul></p>
+</ul></div></p>
 
 <h2 id = "DRAFT_STATUS">DRAFT STATUS</h2>
 
@@ -267,14 +268,15 @@ Supported protocol versions are 1.2 2.1^@</code></pre>
 <p>Once the client is connected it may send any of the following frames:</p>
 
 <ul>
-<li><a href="#send"><code>SEND</code></a></li>
-<li><a href="#subscribe"><code>SUBSCRIBE</code></a></li>
-<li><a href="#unsubscribe"><code>UNSUBSCRIBE</code></a></li>
-<li><a href="#begin"><code>BEGIN</code></a></li>
-<li><a href="#commit"><code>COMMIT</code></a></li>
-<li><a href="#abort"><code>ABORT</code></a></li>
-<li><a href="#ack"><code>ACK</code></a></li>
-<li><a href="#disconnect"><code>DISCONNECT</code></a></li>
+<li><a href="#SEND"><code>SEND</code></a></li>
+<li><a href="#SUBSCRIBE"><code>SUBSCRIBE</code></a></li>
+<li><a href="#UNSUBSCRIBE"><code>UNSUBSCRIBE</code></a></li>
+<li><a href="#BEGIN"><code>BEGIN</code></a></li>
+<li><a href="#COMMIT"><code>COMMIT</code></a></li>
+<li><a href="#ABORT"><code>ABORT</code></a></li>
+<li><a href="#ACK"><code>ACK</code></a></li>
+<li><a href="#NACK"><code>NACK</code></a></li>
+<li><a href="#DISCONNECT"><code>DISCONNECT</code></a></li>
 </ul>
 
 <h2 id = "Client_Frames">Client Frames</h2>
@@ -344,14 +346,15 @@ the server MUST send the client an <code>ERROR</code> frame and disconnect the c
 delivery semantics of the subscription. Consult your server's documentation for
 details.</p>
 
-<h4>SUBSCRIBE id Header</h4>
+<h4 id = "SUBSCRIBE_id_Header">SUBSCRIBE id Header</h4>
 
-<p>You MUST specify an <code>id</code> header to uniquely identify the subscription within
-the STOMP connection session.  Since a single connection can have multiple open
-subscriptions with a broker, the <code>id</code> header allows the client and broker to 
-relate subsequent <code>ACK</code> and <code>UNSUBSCRIBE</code> frames to the original subscription.</p>
+<p>You MUST specify an <code>id</code> header to uniquely identify the subscription within the
+STOMP connection session. Since a single connection can have multiple open
+subscriptions with a broker, the <code>id</code> header allows the client and broker to
+relate subsequent <code>ACK</code>, <code>NACK</code> or <code>UNSUBSCRIBE</code> frames to the original
+subscription.</p>
 
-<h4>SUBSCRIBE ack Header</h4>
+<h4 id = "SUBSCRIBE_ack_Header">SUBSCRIBE ack Header</h4>
 
 <p>The valid values for the <code>ack</code> header are <code>auto</code>, <code>client</code>, or
 <code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
@@ -370,10 +373,10 @@ by the client will be treated as a cumulative <code>ACK</code>. This means the <
 on the message specified in the <code>ACK</code> frame and all messages sent before the
 messages to the subscription.</p>
 
-<p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just
-like the <code>client</code> ack mode except that the <code>ACK</code> frames sent by the client are
-not cumulative. This means that an <code>ACK</code> for a subsequent message should
-not cause a previous message to get acknowledged.</p>
+<p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just like
+the <code>client</code> ack mode except that the <code>ACK</code> or <code>NACK</code> frames sent by the client
+are not cumulative. This means that an <code>ACK</code> or <code>NACK</code> for a subsequent message
+should not cause a previous message to get acknowledged.</p>
 
 <h3 id = "UNSUBSCRIBE">UNSUBSCRIBE</h3>
 
@@ -390,10 +393,9 @@ id:0
 <h3 id = "ACK">ACK</h3>
 
 <p><code>ACK</code> is used to acknowledge consumption of a message from a subscription using
-client acknowledgment. When a client has issued a <code>SUBSCRIBE</code> frame with the
-<code>ack</code> header set to <code>client</code> or <code>client-individual</code>  any messages received from 
-that destination will not be considered to have been consumed (by the server) 
-until the message has been acknowledged via an <code>ACK</code>.</p>
+<code>client</code> or <code>client-individual</code> acknowledgment. Any messages received from such
+a subscription will not be considered to have been consumed until the message
+has been acknowledged via an <code>ACK</code> or a <code>NACK</code>.</p>
 
 <p><code>ACK</code> has two required header, <code>message-id</code>, which must contain a value
 matching the <code>message-id</code> for the <code>MESSAGE</code> being acknowledged and <code>subscription</code>,
@@ -408,6 +410,20 @@ transaction:tx1
 
 ^@</code></pre>
 
+<h3 id = "NACK">NACK</h3>
+
+<p><code>NAK</code> is somehow the opposite of <code>ACK</code>. It is used to tell the server that the
+client did not consume the message. The server can then either send it to a
+different client, discard it, or put it in a dead letter queue. The exact
+behavior is server specific.</p>
+
+<p><code>NAK</code> takes exactly the same headers as <code>ACK</code>: <code>message-id</code> (mandatory),
+<code>subscription</code> (mandatory) and <code>transaction</code> (optional).</p>
+
+<p><code>NAK</code> applies either to one single message (if the subscription's ack
+mode is <code>client-individual</code>) or to all messages sent before and not yet
+<code>ACK</code>'ed or <code>NAK</code>'ed.</p>
+
 <h3 id = "BEGIN">BEGIN</h3>
 
 <p><code>BEGIN</code> is used to start a transaction. Transactions in this case apply to
@@ -420,8 +436,8 @@ transaction:tx1
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is required, and the transaction identifier will be
-used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, and <code>ACK</code> frames to bind them to the named
-transaction.</p>
+used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, <code>ACK</code>, and <code>NAK</code> frames to bind them to the
+named transaction.</p>
 
 <p>Any started transactions which have not been committed will be implicitly aborted
 if the client sends a <code>DISCONNECT</code> frame or if the TCP connection fails for
@@ -497,9 +513,9 @@ hello queue a^@</code></pre>
 initial <code>CONNECTED</code> frame). These frames may be one of:</p>
 
 <ul>
-<li><a href="#message"><code>MESSAGE</code></a></li>
-<li><a href="#receipt"><code>RECEIPT</code></a></li>
-<li><a href="#error"><code>ERROR</code></a></li>
+<li><a href="#MESSAGE"><code>MESSAGE</code></a></li>
+<li><a href="#RECEIPT"><code>RECEIPT</code></a></li>
+<li><a href="#ERROR"><code>ERROR</code></a></li>
 </ul>
 
 <h3 id = "MESSAGE">MESSAGE</h3>
@@ -673,6 +689,7 @@ client-command      = "SEND"
                       | "COMMIT"
                       | "ABORT"
                       | "ACK"
+                      | "NACK"
                       | "DISCONNECT"
                       | "CONNECT"
                       | "STOMP"
