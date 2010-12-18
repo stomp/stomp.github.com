@@ -85,7 +85,7 @@
     <li><a href="#Augmented_BNF">Augmented BNF</a></li>
     <li><a href="#License">License</a></li>
   </ul></li>
-</ul></div></p>
+</ul></p>
 
 <h2 id = "DRAFT_STATUS">DRAFT STATUS</h2>
 
@@ -369,7 +369,7 @@ the server MUST send the client an <code>ERROR</code> frame and disconnect the c
 delivery semantics of the subscription. Consult your server's documentation for
 details.</p>
 
-<h4 id = "SUBSCRIBE_id_Header">SUBSCRIBE id Header</h4>
+<h4>SUBSCRIBE id Header</h4>
 
 <p>You MUST specify an <code>id</code> header to uniquely identify the subscription within the
 STOMP connection session. Since a single connection can have multiple open
@@ -377,7 +377,7 @@ subscriptions with a broker, the <code>id</code> header allows the client and br
 relate subsequent <code>ACK</code>, <code>NACK</code> or <code>UNSUBSCRIBE</code> frames to the original
 subscription.</p>
 
-<h4 id = "SUBSCRIBE_ack_Header">SUBSCRIBE ack Header</h4>
+<h4>SUBSCRIBE ack Header</h4>
 
 <p>The valid values for the <code>ack</code> header are <code>auto</code>, <code>client</code>, or
 <code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
@@ -435,17 +435,17 @@ transaction:tx1
 
 <h3 id = "NACK">NACK</h3>
 
-<p><code>NAK</code> is somehow the opposite of <code>ACK</code>. It is used to tell the server that the
+<p><code>NACK</code> is somehow the opposite of <code>ACK</code>. It is used to tell the server that the
 client did not consume the message. The server can then either send it to a
 different client, discard it, or put it in a dead letter queue. The exact
 behavior is server specific.</p>
 
-<p><code>NAK</code> takes exactly the same headers as <code>ACK</code>: <code>message-id</code> (mandatory),
+<p><code>NACK</code> takes exactly the same headers as <code>ACK</code>: <code>message-id</code> (mandatory),
 <code>subscription</code> (mandatory) and <code>transaction</code> (optional).</p>
 
-<p><code>NAK</code> applies either to one single message (if the subscription's ack
+<p><code>NACK</code> applies either to one single message (if the subscription's ack
 mode is <code>client-individual</code>) or to all messages sent before and not yet
-<code>ACK</code>'ed or <code>NAK</code>'ed.</p>
+<code>ACK</code>'ed or <code>NACK</code>'ed.</p>
 
 <h3 id = "BEGIN">BEGIN</h3>
 
@@ -459,7 +459,7 @@ transaction:tx1
 ^@</code></pre>
 
 <p>The <code>transaction</code> header is required, and the transaction identifier will be
-used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, <code>ACK</code>, and <code>NAK</code> frames to bind them to the
+used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, <code>ACK</code>, and <code>NACK</code> frames to bind them to the
 named transaction.</p>
 
 <p>Any started transactions which have not been committed will be implicitly aborted
