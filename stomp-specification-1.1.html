@@ -492,16 +492,20 @@ abort&#33;</p>
 
 <h3 id = "DISCONNECT">DISCONNECT</h3>
 
-<p><code>DISCONNECT</code> does a graceful disconnect from the server. It is quite polite to
-use this before closing the socket.</p>
+<p>A client can disconnect from the server at anytime by closing his socket but
+but there is no guarantee that frames sent previously have been accepted
+for processing by the server.  To do a graceful shutdown where the client
+is assured that all previous frames have been received by the server, the
+client should send a <code>DISCONNECT</code> frame with a <code>receipt</code> header set, then
+wait for the <code>RECEIPT</code> frame response to the <code>DISCONNECT</code> and then 
+the client should close the socket.</p>
 
 <pre><code>DISCONNECT
-
+receipt:77
 ^@</code></pre>
 
-<p>A <code>DISCONNECT</code> frame should not include a <code>receipt</code> header since the server
-will not send the client any more frames once the <code>DISCONNECT</code>
-is received.</p>
+<p>Clients MUST not send any more frames on a connection after the 
+<code>DISCONNECT</code> frame is sent.</p>
 
 <h2 id = "Standard_Headers">Standard Headers</h2>
 
@@ -536,7 +540,7 @@ this would be a UTF-8 encoded XML. It's <code>content-type</code> should get set
 
 <h3 id = "Header_receipt">Header receipt</h3>
 
-<p>Any client frame other than <code>CONNECT</code> and <code>DISCONNECT</code> may specify a <code>receipt</code>
+<p>Any client frame other than <code>CONNECT</code> may specify a <code>receipt</code>
 header with an arbitrary value. This will cause the server to acknowledge
 receipt of the frame with a <code>RECEIPT</code> frame which contains the value of this
 header as the value of the <code>receipt-id</code> header in the <code>RECEIPT</code> frame.</p>
