@@ -125,7 +125,7 @@ BNF</a> section of this document.</p>
 <p>The headers are encoded in UTF-8. Since the colon and newline characters are
 used to delimit the keys and values, c style string literal escapes are used
 to encode any colons and newlines that are included within the headers. When decoding 
-frame headers, the following transformations should get applied:</p>
+frame headers, the following transformations MUST get applied:</p>
 
 <ul>
 <li><code>\n</code> translates to newline (octect 10)</li>
@@ -133,20 +133,21 @@ frame headers, the following transformations should get applied:</p>
 <li><code>\\</code> translates to <code>\</code></li>
 </ul>
 
-<p>Conversely when encoding frame headers, the reverse transformation should be
+<p>Undefined escape sequences such as '\r' MUST be treated as a fatal protocol error.
+Conversely when encoding frame headers, the reverse transformation MUST be
 applied.</p>
 
 <p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames can have a body. All other
-frames MUST not have a body.</p>
+frames MUST NOT have a body.</p>
 
 <p>The STOMP 1.0 specification included many example frames with padding in the
 headers and many servers and clients were implemented to trim or pad header
-values. This causes problems if applications want to send headers that should
+values. This causes problems if applications want to send headers that SHOULD
 not get trimmed. In STOMP 1.1, clients and servers MUST never trim or pad
 headers with spaces.</p>
 
 <p>To prevent malicious clients from exploiting memory allocation in a 
-server, servers may place maximum limits on:</p>
+server, servers MAY place maximum limits on:</p>
 
 <ul>
 <li>the number of frame headers allowed in a single frame</li>
@@ -154,18 +155,18 @@ server, servers may place maximum limits on:</p>
 <li>the maximum size of a frame body</li>
 </ul>
 
-<p>If these limits are exceeded the server should send the client an <code>ERROR</code>
+<p>If these limits are exceeded the server SHOULD send the client an <code>ERROR</code>
 frame and disconnect the client.</p>
 
 <h3 id = "Repeated_Header_Entries">Repeated Header Entries</h3>
 
 <p>Since messaging systems can be organized in store and forward topologies,
-similar to SMTP, a message may traverse several messaging servers before
-reaching a consumer. The intermediate server may 'update' header values in the
+similar to SMTP, a message MAY traverse several messaging servers before
+reaching a consumer. The intermediate server MAY 'update' header values in the
 message by prepending headers to the message.</p>
 
 <p>If the client receives repeated frame header entries, only the first header
-entry should be used as the value of header entry. Subsequent values are only
+entry SHOULD be used as the value of header entry. Subsequent values are only
 use to maintain a history of state changes of the header. For example, if the
 client receives:</p>
 
@@ -196,18 +197,18 @@ version:1.1
 
 ^@</code></pre>
 
-<p>The sever may reject any connection attempt. The server SHOULD respond back
+<p>The sever MAY reject any connection attempt. The server SHOULD respond back
 with an <code>ERROR</code> frame listing why the connection was rejected and then close the 
-connection. Since STOMP servers must support clients which rapidly connect and 
+connection. Since STOMP servers MUST support clients which rapidly connect and 
 disconnect, a server will likely only allow closed
 connections to linger for short time before the connection is reset. This means
-that a client may not fully receive the <code>ERROR</code> frame before the socket is
+that a client MAY NOT fully receive the <code>ERROR</code> frame before the socket is
 reset.</p>
 
 <h3 id = "CONNECT_or_STOMP_Frame">CONNECT or STOMP Frame</h3>
 
-<p>STOMP servers should handle a <code>STOMP</code> frame in the same manner as a <code>CONNECT</code> frame.
-STOMP 1.1 clients should continue to use the <code>CONNECT</code> command to remain
+<p>STOMP servers SHOULD handle a <code>STOMP</code> frame in the same manner as a <code>CONNECT</code> frame.
+STOMP 1.1 clients SHOULD continue to use the <code>CONNECT</code> command to remain
 backward compatible with STOMP 1.0 servers.</p>
 
 <p>Clients that use the <code>STOMP</code> frame instead of the <code>CONNECT</code> frame will only be
@@ -253,7 +254,7 @@ See <a href="#protocol&#95;negotiation">Protocol Negotiation</a> for more detail
 <h2 id = "Protocol_Negotiation">Protocol Negotiation</h2>
 
 <p>From STOMP 1.1 and onwards, the <code>CONNECT</code> frame MUST include the
-<code>accept-version</code> header. It should be set to a comma separated list of
+<code>accept-version</code> header. It SHOULD be set to a comma separated list of
 incrementing STOMP protocol versions that the client supports. If the
 <code>accept-version</code> header is missing, it means that the client only supports
 version 1.0 of the protocol.</p>
@@ -278,7 +279,7 @@ version:1.1
 ^@</code></pre>
 
 <p>If the client and server do not share any common protocol versions, then the
-sever should respond with an <code>ERROR</code> frame similar to:</p>
+sever SHOULD respond with an <code>ERROR</code> frame similar to:</p>
 
 <pre><code>ERROR
 version:1.2,2.1
@@ -288,7 +289,7 @@ Supported protocol versions are 1.2 2.1^@</code></pre>
 
 <h2 id = "Once_Connected">Once Connected</h2>
 
-<p>Once the client is connected it may send any of the following frames:</p>
+<p>Once the client is connected it MAY send any of the following frames:</p>
 
 <ul>
 <li><a href="#SEND"><code>SEND</code></a></li>
@@ -307,7 +308,7 @@ Supported protocol versions are 1.2 2.1^@</code></pre>
 <h3 id = "SEND">SEND</h3>
 
 <p>The <code>SEND</code> frame sends a message to a destination in the messaging system. It
-has one required header, <code>destination</code>, which indicates where to send the
+has one REQUIRED header, <code>destination</code>, which indicates where to send the
 message. The body of the <code>SEND</code> frame is the message to be sent. For example:</p>
 
 <pre><code>SEND
@@ -333,11 +334,11 @@ such as the <code>transaction</code> header or other server specific message hea
 
 <p><code>SEND</code> supports a <code>transaction</code> header which allows for transactional sends.</p>
 
-<p><code>SEND</code> frames should include a 
+<p><code>SEND</code> frames SHOULD include a 
 <a href="#Header&#95;content-length"><code>content-length</code></a> header and a 
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
-<p>An application may add any arbitrary user defined headers to the <code>SEND</code> frame.
+<p>An application MAY add any arbitrary user defined headers to the <code>SEND</code> frame.
 User defined headers are typically used to allow consumers to filter
 messages based on the application defined headers using a selector 
 on a <code>SUBSCRIBE</code> frame. The user defined headers MUST be passed through
@@ -367,13 +368,13 @@ ack:client
 <p>If the sever cannot successfully create the subscription, 
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
-<p>STOMP servers may support additional server specific headers to customize the
+<p>STOMP servers MAY support additional server specific headers to customize the
 delivery semantics of the subscription. Consult your server's documentation for
 details.</p>
 
 <h4 id = "SUBSCRIBE_id_Header">SUBSCRIBE id Header</h4>
 
-<p>An <code>id</code> header must be included in the frame to uniquely identify the subscription within the
+<p>An <code>id</code> header MUST be included in the frame to uniquely identify the subscription within the
 STOMP connection session. Since a single connection can have multiple open
 subscriptions with a broker, the <code>id</code> header allows the client and broker to
 relate subsequent <code>ACK</code>, <code>NACK</code> or <code>UNSUBSCRIBE</code> frames to the original
@@ -390,10 +391,10 @@ client has received the message as soon as it sends it to the the client. This
 acknowledgment mode can cause messages being transmitted to the client to get
 dropped.</p>
 
-<p>When the the <code>ack</code> mode is <code>client</code>, then the client must send the server <code>ACK</code>
+<p>When the the <code>ack</code> mode is <code>client</code>, then the client MUST send the server <code>ACK</code>
 frames for the messages it processes. If the connection fails before a client
 sends an <code>ACK</code> for the message the server will assume the message has not been
-processed and may redeliver the message to another client. The <code>ACK</code> frames sent
+processed and MAY redeliver the message to another client. The <code>ACK</code> frames sent
 by the client will be treated as a cumulative <code>ACK</code>. This means the <code>ACK</code> operates
 on the message specified in the <code>ACK</code> frame and all messages sent before the
 messages to the subscription.</p>
@@ -401,7 +402,7 @@ messages to the subscription.</p>
 <p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just like
 the <code>client</code> ack mode except that the <code>ACK</code> or <code>NACK</code> frames sent by the client
 are not cumulative. This means that an <code>ACK</code> or <code>NACK</code> for a subsequent message
-should not cause a previous message to get acknowledged.</p>
+SHOULD NOT cause a previous message to get acknowledged.</p>
 
 <h3 id = "UNSUBSCRIBE">UNSUBSCRIBE</h3>
 
@@ -422,11 +423,11 @@ id:0
 a subscription will not be considered to have been consumed until the message
 has been acknowledged via an <code>ACK</code> or a <code>NACK</code>.</p>
 
-<p><code>ACK</code> has two required headers: <code>message-id</code>, which must contain a value
+<p><code>ACK</code> has two REQUIRED headers: <code>message-id</code>, which MUST contain a value
 matching the <code>message-id</code> for the <code>MESSAGE</code> being acknowledged and <code>subscription</code>,
-which must be set to match the value of the subscription's <code>id</code> header. 
-Optionally, a <code>transaction</code> header may be specified, indicating that the message
-acknowledgment should be part of the named transaction.</p>
+which MUST be set to match the value of the subscription's <code>id</code> header. 
+Optionally, a <code>transaction</code> header MAY be specified, indicating that the message
+acknowledgment SHOULD be part of the named transaction.</p>
 
 <pre><code>ACK
 subscription:0
@@ -443,7 +444,7 @@ different client, discard it, or put it in a dead letter queue. The exact
 behavior is server specific.</p>
 
 <p><code>NACK</code> takes the same headers as <code>ACK</code>: <code>message-id</code> (mandatory),
-<code>subscription</code> (mandatory) and <code>transaction</code> (optional).</p>
+<code>subscription</code> (mandatory) and <code>transaction</code> (OPTIONAL).</p>
 
 <p><code>NACK</code> applies either to one single message (if the subscription's ack
 mode is <code>client-individual</code>) or to all messages sent before and not yet
@@ -460,7 +461,7 @@ transaction:tx1
 
 ^@</code></pre>
 
-<p>The <code>transaction</code> header is required, and the transaction identifier will be
+<p>The <code>transaction</code> header is REQUIRED, and the transaction identifier will be
 used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, <code>ACK</code>, and <code>NACK</code> frames to bind them to the
 named transaction.</p>
 
@@ -477,7 +478,7 @@ transaction:tx1
 
 ^@</code></pre>
 
-<p>The <code>transaction</code> header is required and must specify the id of the transaction to
+<p>The <code>transaction</code> header is REQUIRED and MUST specify the id of the transaction to
 commit&#33;</p>
 
 <h3 id = "ABORT">ABORT</h3>
@@ -489,7 +490,7 @@ transaction:tx1
 
 ^@</code></pre>
 
-<p>The <code>transaction</code> header is required and must specify the id of the transaction to
+<p>The <code>transaction</code> header is REQUIRED and MUST specify the id of the transaction to
 abort&#33;</p>
 
 <h3 id = "DISCONNECT">DISCONNECT</h3>
@@ -497,7 +498,7 @@ abort&#33;</p>
 <p>A client can disconnect from the server at anytime by closing his socket but
 but there is no guarantee that the previously sent frames have been received
 by the server. To do a graceful shutdown, where the client is assured that all
-previous frames have been received by the server, the client should:</p>
+previous frames have been received by the server, the client SHOULD:</p>
 
 <ol>
 <li><p>send a <code>DISCONNECT</code> frame with a <code>receipt</code> header set.  Example:</p>
@@ -513,42 +514,46 @@ receipt-id:77
 <li><p>close the socket.</p></li>
 </ol>
 
-<p>Clients MUST not send any more frames after the <code>DISCONNECT</code> frame is sent.</p>
+<p>Clients MUST NOT send any more frames after the <code>DISCONNECT</code> frame is sent.</p>
 
 <h2 id = "Standard_Headers">Standard Headers</h2>
 
-<p>Some headers may be used, and have special meaning, with most frames.</p>
+<p>Some headers MAY be used, and have special meaning, with most frames.</p>
 
 <h3 id = "Header_content-length">Header content-length</h3>
 
-<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames should include a <code>content-length</code>
+<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD include a <code>content-length</code>
 header if a frame body is present. The header is a byte count for the length
 of the message body. If a <code>content-length</code> header is included, this number of
-bytes must be read, regardless of whether or not there are null characters in
+bytes MUST be read, regardless of whether or not there are null characters in
 the body. The frame still needs to be terminated with a null byte. If a
 <code>content-length</code> is not specified, the first null byte encountered signals
 the end of the frame.</p>
 
 <h3 id = "Header_content-type">Header content-type</h3>
 
-<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames should include a <code>content-type</code>
-header if a frame body is present. It should be set to a mime type which
+<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD include a <code>content-type</code>
+header if a frame body is present. It SHOULD be set to a mime type which
 describes the format of the body to help the receiver of the frame interpret
-it's contents. If the <code>content-type</code> header is not set, the receiver should
+it's contents. If the <code>content-type</code> header is not set, the receiver SHOULD
 consider the body to be a binary blob.</p>
 
 <p>The implied text encoding for mime types starting with <code>text/</code> is UTF-8. If
 you are using a text based mime type with a different encoding then you
-should append <code>;charset=&lt;encoding&gt;</code> to the mime type. For example,
-<code>text/html;charset=utf-16</code> should be used if your sending an html body in
-UTF-16 encoding. The <code>;charset=&lt;encoding&gt;</code> should also get appended to any
+SHOULD append <code>;charset=&lt;encoding&gt;</code> to the mime type. For example,
+<code>text/html;charset=utf-16</code> SHOULD be used if your sending an html body in
+UTF-16 encoding. The <code>;charset=&lt;encoding&gt;</code> SHOULD also get appended to any
 non <code>text/</code> mime types which can be interpreted as text. A good example of
-this would be a UTF-8 encoded XML. It's <code>content-type</code> should get set to
+this would be a UTF-8 encoded XML. It's <code>content-type</code> SHOULD get set to
 <code>application/xml;charset=utf-8</code></p>
+
+<p>All STOMP clients and servers MUST support UTF-8 encoding and decoding.  Therefore, 
+for maximum interoperability in a heterogeneous computing environment, it is
+RECOMMENDED that text based content be encoded with UTF-8.</p>
 
 <h3 id = "Header_receipt">Header receipt</h3>
 
-<p>Any client frame other than <code>CONNECT</code> may specify a <code>receipt</code>
+<p>Any client frame other than <code>CONNECT</code> MAY specify a <code>receipt</code>
 header with an arbitrary value. This will cause the server to acknowledge
 receipt of the frame with a <code>RECEIPT</code> frame which contains the value of this
 header as the value of the <code>receipt-id</code> header in the <code>RECEIPT</code> frame.</p>
@@ -562,7 +567,7 @@ hello queue a^@</code></pre>
 <h2 id = "Server_Frames">Server Frames</h2>
 
 <p>The server will, on occasion, send frames to the client (in addition to the
-initial <code>CONNECTED</code> frame). These frames may be one of:</p>
+initial <code>CONNECTED</code> frame). These frames MAY be one of:</p>
 
 <ul>
 <li><a href="#MESSAGE"><code>MESSAGE</code></a></li>
@@ -587,13 +592,13 @@ content-type:text/plain
 
 hello queue a^@</code></pre>
 
-<p><code>MESSAGE</code> frames should include a 
+<p><code>MESSAGE</code> frames SHOULD include a 
 <a href="#Header&#95;content-length"><code>content-length</code></a> header and a 
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <p><code>MESSAGE</code> frames will also include all user defined headers that were present
 when the message was sent to the destination in addition to the server specific headers 
-that may get added to the frame.  Consult your server's documentation to find out the 
+that MAY get added to the frame.  Consult your server's documentation to find out the 
 server specific headers that it adds to messages.</p>
 
 <h3 id = "RECEIPT">RECEIPT</h3>
@@ -612,9 +617,9 @@ receipt-id:message-12345
 
 <h3 id = "ERROR">ERROR</h3>
 
-<p>The server may send <code>ERROR</code> frames if something goes wrong. The error frame
-should contain a <code>message</code> header with a short description of the error, and
-the body may contain more detailed information (or may be empty).</p>
+<p>The server MAY send <code>ERROR</code> frames if something goes wrong. The error frame
+SHOULD contain a <code>message</code> header with a short description of the error, and
+the body MAY contain more detailed information (or MAY be empty).</p>
 
 <pre><code>ERROR
 receipt-id:message-12345
@@ -630,17 +635,17 @@ receipt:message-12345
 
 Hello queue a!
 -----
-Did not contain a destination header, which is required 
+Did not contain a destination header, which is REQUIRED 
 for message propagation.
 ^@</code></pre>
 
 <p>If the error is related to specific frame sent from the client, the server
-should add additional headers to help identify the original frame that caused
+SHOULD add additional headers to help identify the original frame that caused
 the error. For example, if the frame included a receipt header, the <code>ERROR</code>
 frame SHOULD set the <code>receipt-id</code> header to match the value of the <code>receipt</code>
 header of the frame which the error is related to.</p>
 
-<p><code>ERROR</code> frames should include a 
+<p><code>ERROR</code> frames SHOULD include a 
 <a href="#Header&#95;content-length"><code>content-length</code></a> head and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
@@ -675,7 +680,7 @@ to get (incoming heart-beats):</p>
 <li><p>otherwise it is the desired number of milliseconds between heart-beats</p></li>
 </ul>
 
-<p>The <code>heart-beat</code> header is optional. A missing <code>heart-beat</code> header MUST be
+<p>The <code>heart-beat</code> header is OPTIONAL. A missing <code>heart-beat</code> header MUST be
 treated the same way as a &ldquo;heart-beat:0,0&rdquo; header, that is: the party cannot
 send and does not want to receive heart-beats.</p>
 
