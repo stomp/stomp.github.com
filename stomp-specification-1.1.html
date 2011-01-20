@@ -376,7 +376,7 @@ details.</p>
 
 <p>An <code>id</code> header MUST be included in the frame to uniquely identify the subscription within the
 STOMP connection session. Since a single connection can have multiple open
-subscriptions with a broker, the <code>id</code> header allows the client and broker to
+subscriptions with a server, the <code>id</code> header allows the client and server to
 relate subsequent <code>ACK</code>, <code>NACK</code> or <code>UNSUBSCRIBE</code> frames to the original
 subscription.</p>
 
@@ -402,7 +402,7 @@ messages to the subscription.</p>
 <p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just like
 the <code>client</code> ack mode except that the <code>ACK</code> or <code>NACK</code> frames sent by the client
 are not cumulative. This means that an <code>ACK</code> or <code>NACK</code> for a subsequent message
-SHOULD NOT cause a previous message to get acknowledged.</p>
+MUST NOT cause a previous message to get acknowledged.</p>
 
 <h3 id = "UNSUBSCRIBE">UNSUBSCRIBE</h3>
 
@@ -496,7 +496,7 @@ abort&#33;</p>
 <h3 id = "DISCONNECT">DISCONNECT</h3>
 
 <p>A client can disconnect from the server at anytime by closing his socket but
-but there is no guarantee that the previously sent frames have been received
+there is no guarantee that the previously sent frames have been received
 by the server. To do a graceful shutdown, where the client is assured that all
 previous frames have been received by the server, the client SHOULD:</p>
 
