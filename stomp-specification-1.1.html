@@ -119,13 +119,13 @@ entry is terminated by a newline. A blank line indicates the end of the headers
 and the beginning of the body. The body is then followed by the null byte (0x00). 
 The examples in this document will use <code>^@</code>, control-@ in ASCII, to represent the 
 null byte. The null byte can be optionally followed by multiple newlines. For more
-details, on how to parse STOMP frames, see the <a href="#augmented&#95;bnf">Augmented
-BNF</a> section of this document.</p>
+details, on how to parse STOMP frames, see the <a href="#Augmented&#95;BNF">Augmented BNF</a> section 
+of this document.</p>
 
 <p>The headers are encoded in UTF-8. Since the colon and newline characters are
 used to delimit the keys and values, c style string literal escapes are used
 to encode any colons and newlines that are included within the headers. When decoding 
-frame headers, the following transformations MUST get applied:</p>
+frame headers, the following transformations MUST be applied:</p>
 
 <ul>
 <li><code>\n</code> translates to newline (octect 10)</li>
