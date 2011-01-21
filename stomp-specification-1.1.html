@@ -730,18 +730,18 @@ into account an error margin</p></li>
 Backus-Naur Form (BNF) grammar used in HTTP/1.1
 <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.1">rfc2616</a>.</p>
 
-<pre><code>NL                  = &lt;US-ASCII new line (line feed) (octect 10)&gt;
+<pre><code>LF                  = &lt;US-ASCII new line (line feed) (octect 10)&gt;
 OCTET               = &lt;any 8-bit sequence of data&gt;
 NULL                = &lt;octect 0&gt;
 
 frame-stream        = 1*frame
 
-frame               = command NL
-                      *( header NL )
-                      NL
+frame               = command LF
+                      *( header LF )
+                      LF
                       *OCTET
                       NULL
-                      *( NL )
+                      *( LF )
 
 command             = client-command | server-command
 
@@ -763,8 +763,8 @@ server-command      = "CONNECTED"
                       | "ERROR"
 
 header              = header-name ":" header-value
-header-name         = 1*&lt;any OCTET except NL or ":"&gt;
-header-value        = *&lt;any OCTET except NL&gt;</code></pre>
+header-name         = 1*&lt;any OCTET except LF or ":"&gt;
+header-value        = *&lt;any OCTET except LF&gt;</code></pre>
 
 <h2 id = "License">License</h2>
 
