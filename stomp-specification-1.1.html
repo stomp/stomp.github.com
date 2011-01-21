@@ -135,7 +135,7 @@ decoding frame headers, the following transformations MUST be applied:</p>
 <li><code>\\</code> translates to <code>\</code></li>
 </ul>
 
-<p>Undefined escape sequences such as '\r' MUST be treated as a fatal protocol
+<p>Undefined escape sequences such as <code>\r</code> MUST be treated as a fatal protocol
 error. Conversely when encoding frame headers, the reverse transformation
 MUST be applied.</p>
 
@@ -292,7 +292,7 @@ Supported protocol versions are 1.2 2.1^@</code></pre>
 <h2 id = "Once_Connected">Once Connected</h2>
 
 <p>A client MAY send a frame not in this list, but for such a frame a
-STOMP 1.1 server MAY respond with an ERROR frame.</p>
+STOMP 1.1 server MAY respond with an <code>ERROR</code> frame.</p>
 
 <ul>
 <li><a href="#SEND"><code>SEND</code></a></li>
