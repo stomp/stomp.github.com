@@ -130,14 +130,14 @@ to encode any colons and newlines that are included within the headers. When
 decoding frame headers, the following transformations MUST be applied:</p>
 
 <ul>
-<li><code>\n</code> translates to newline (octect 10)</li>
-<li><code>\c</code> translates to <code>:</code></li>
-<li><code>\\</code> translates to <code>\</code></li>
+<li><code>\n</code> (octet 92 and 110) translates to newline (octet 10)</li>
+<li><code>\c</code> (octet 92 and 99) translates to <code>:</code> (octet 58)</li>
+<li><code>\\</code> (octet 92 and 92) translates to <code>\</code> (octet 92)</li>
 </ul>
 
-<p>Undefined escape sequences such as <code>\r</code> MUST be treated as a fatal protocol
-error. Conversely when encoding frame headers, the reverse transformation
-MUST be applied.</p>
+<p>Undefined escape sequences such as <code>\r</code> (octet 92 and 114) MUST be treated as
+a fatal protocol error. Conversely when encoding frame headers, the reverse
+transformation MUST be applied.</p>
 
 <p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames can have a body. All other
 frames MUST NOT have a body.</p>
@@ -730,9 +730,9 @@ into account an error margin</p></li>
 Backus-Naur Form (BNF) grammar used in HTTP/1.1
 <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.1">rfc2616</a>.</p>
 
-<pre><code>LF                  = &lt;US-ASCII new line (line feed) (octect 10)&gt;
+<pre><code>LF                  = &lt;US-ASCII new line (line feed) (octet 10)&gt;
 OCTET               = &lt;any 8-bit sequence of data&gt;
-NULL                = &lt;octect 0&gt;
+NULL                = &lt;octet 0&gt;
 
 frame-stream        = 1*frame
 
