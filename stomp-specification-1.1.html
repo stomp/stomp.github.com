@@ -42,8 +42,16 @@
 <h1 id = "STOMP_Protocol_Specification__Version_1_1">STOMP Protocol Specification, Version 1.1</h1>
 
 <p><div class="toc"><ul style="list-style:none;">
+  <li><a href="#Abstract">Abstract</a></li>
   <li><a href="#DRAFT_STATUS">DRAFT STATUS</a></li>
   <li><a href="#Overview">Overview</a></li>
+  <li><ul style="list-style:none;">
+    <li><a href="#Background">Background</a></li>
+    <li><a href="#Protocol_Overview">Protocol Overview</a></li>
+    <li><a href="#Changes_in_the_Protocol">Changes in the Protocol</a></li>
+    <li><a href="#Design_Philosophy">Design Philosophy</a></li>
+  </ul></li>
+  <li><a href="#Conformance">Conformance</a></li>
   <li><a href="#STOMP_Frames">STOMP Frames</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#Repeated_Header_Entries">Repeated Header Entries</a></li>
@@ -88,19 +96,111 @@
   <li><a href="#License">License</a></li>
 </ul></div></p>
 
+<h2 id = "Abstract">Abstract</h2>
+
+<p>STOMP is a simple interoperable protocol designed for asynchronous message
+passing between clients via mediating servers. It defines a text based
+wire-format for messages passed between these clients and servers.</p>
+
+<p>STOMP has been in active use for several years and is supported by many
+message brokers and client libraries. This specification defines the STOMP 1.1
+protocol and is an update to <a href="http://stomp.codehaus.org/Protocol">STOMP 1.0</a>.</p>
+
+<p>Please send feedback to the stomp-spec@googlegroups.com mailing list.</p>
+
 <h2 id = "DRAFT_STATUS">DRAFT STATUS</h2>
 
-<p>Version 1.1 of the specification is still being developed. This is only
-a draft document.</p>
+<p>Version 1.1 of the specification is still being developed. This is only a
+draft document.</p>
 
 <h2 id = "Overview">Overview</h2>
 
-<p>STOMP is a simple interoperable wire format designed for asynchronous
-message passing between clients via mediating servers.</p>
+<h3 id = "Background">Background</h3>
 
-<p>The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;,
-&ldquo;SHOULD&rdquo;, &ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in this
-document are to be interpreted as described in RFC 2119.</p>
+<p>STOMP arose from a need to connect to enterprise message brokers from
+scripting languages such as Ruby, Python and Perl.  In such an
+environment it is typically logically simple operations that are
+carried out such as 'reliably send a single message and disconnect'
+or 'consume all messages on a given destination'.</p>
+
+<p>It is an alternative to other open messaging protocols such as AMQP
+and  implementation specific wire protocols used in JMS brokers such
+as OpenWire.  It distinguishes itself by covering a small subset of
+commonly used messaging operations rather than providing a
+comprehensive messaging API.</p>
+
+<p>More recently STOMP has matured into a protocol which can be used past
+these simple use cases in terms of the wire-level features it now
+offers, but still maintains its core design principles of simplicity
+and interoperability.</p>
+
+<h3 id = "Protocol_Overview">Protocol Overview</h3>
+
+<p>STOMP is a frame based protocol, with frames modelled on HTTP. A frame
+consists of a command, a set of optional headers and an optional body. STOMP
+is text based but also allows for the transmission of binary messages. The
+default encoding for STOMP is UTF-8, but it supports the specification of
+alternative encodings for message bodies.</p>
+
+<p>A STOMP server is modelled as a set of destinations to which messages can be
+sent. The STOMP protocol treats destinations as opaque string and their syntax
+is server implementation specific. Additionally STOMP does not define what the
+delivery semantics of destinations should be. The delivery, or &ldquo;message
+exchange&rdquo;, semantics of destinations can vary from server to server and even
+from destination to destination. This allows servers to be creative with the
+semantics that they can support with STOMP.</p>
+
+<p>A STOMP client is a user-agent which can act in two (possibly simultaneous)
+modes:</p>
+
+<ul>
+<li><p>As a producer, sending messages to a destination on the server via a <code>SEND</code>
+frame</p></li>
+<li><p>As a consumer, sending a <code>SUBSCRIBE</code> frame for a given destination and
+receiving messages from the server as <code>MESSAGE</code> frames.</p></li>
+</ul>
+
+<h3 id = "Changes_in_the_Protocol">Changes in the Protocol</h3>
+
+<p>STOMP 1.1 is designed to be backwards compatible with STOMP 1.0 while
+introducing several new features not present in STOMP 1.0:</p>
+
+<ul>
+<li><p>protocol negotiation to allow for interoperability between clients and
+servers supporting successive versions of STOMP</p></li>
+<li><p>heartbeats to allow for reliable detection of disconnecting clients and
+servers</p></li>
+<li><p><code>NACK</code> frames for negative acknowledgment of message receipt</p></li>
+<li><p>Support for virtual hosting</p></li>
+</ul>
+
+<h3 id = "Design_Philosophy">Design Philosophy</h3>
+
+<p>The main philosophies driving the design of STOMP are simplicity and
+interoperability.</p>
+
+<p>STOMP is designed to be a lightweight protocol that is easy to implement both
+on the client and server side in a wide range of languages. This implies, in
+particular, that there are not many constraints on the architecture of servers
+and many features such as destination naming and reliability semantics are
+implementation specific.</p>
+
+<p>In this specification we will note features of servers which are not
+explicitly defined by STOMP 1.1. You should consult your STOMP server's
+documentation for the implementation specific details of these features.</p>
+
+<h2 id = "Conformance">Conformance</h2>
+
+<p>The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;, &ldquo;SHOULD&rdquo;,
+&ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in this document are to be
+interpreted as described in RFC 2119.</p>
+
+<p>Implementations may impose implementation-specific limits on unconstrained
+inputs, e.g. to prevent denial of service attacks, to guard against running
+out of memory, or to work around platform-specific limitations.</p>
+
+<p>The conformance classes defined by this specification are STOMP clients and
+STOMP servers.</p>
 
 <h2 id = "STOMP_Frames">STOMP Frames</h2>
 
@@ -148,7 +248,7 @@ values. This causes problems if applications want to send headers that SHOULD
 not get trimmed. In STOMP 1.1, clients and servers MUST never trim or pad
 headers with spaces.</p>
 
-<p>To prevent malicious clients from exploiting memory allocation in a 
+<p>To prevent malicious clients from exploiting memory allocation in a
 server, servers MAY place maximum limits on:</p>
 
 <ul>
@@ -183,7 +283,7 @@ foo:Hello
 
 <h2 id = "Connecting">Connecting</h2>
 
-<p>A STOMP client initiates the stream or TCP connection to the server by sending 
+<p>A STOMP client initiates the stream or TCP connection to the server by sending
 the <code>CONNECT</code> frame:</p>
 
 <pre><code>CONNECT
@@ -321,29 +421,25 @@ content-type:text/plain
 hello queue a
 ^@</code></pre>
 
-<p>This sends a message to a destination named <code>/queue/a</code>. Even though queue and
-topic delivery semantics are the most popular in messing servers, STOMP does
-not define what the delivery semantics of destinations should be. The
-delivery, or &ldquo;message exchange&rdquo;, semantics of destinations can vary from
-server to server and even from destination to destination. This allows
-servers to be creative with the semantics that they can support with STOMP.
-You should consult your STOMP server's documentation to find out how to
-construct a destination name which gives you the delivery semantics that your
-application needs.</p>
+<p>This sends a message to a destination named <code>/queue/a</code>. Note that STOMP treats
+this destination as an opaque string and no delivery semantics are assumed by
+the name of a destination. You should consult your STOMP server's
+documentation to find out how to construct a destination name which gives you
+the delivery semantics that your application needs.</p>
 
-<p>The reliability semantics of the message are also server specific and will 
-depend on the destination value being used and the other message headers 
+<p>The reliability semantics of the message are also server specific and will
+depend on the destination value being used and the other message headers
 such as the <code>transaction</code> header or other server specific message headers.</p>
 
 <p><code>SEND</code> supports a <code>transaction</code> header which allows for transactional sends.</p>
 
-<p><code>SEND</code> frames SHOULD include a 
-<a href="#Header&#95;content-length"><code>content-length</code></a> header and a 
+<p><code>SEND</code> frames SHOULD include a
+<a href="#Header&#95;content-length"><code>content-length</code></a> header and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <p>An application MAY add any arbitrary user defined headers to the <code>SEND</code> frame.
 User defined headers are typically used to allow consumers to filter
-messages based on the application defined headers using a selector 
+messages based on the application defined headers using a selector
 on a <code>SUBSCRIBE</code> frame. The user defined headers MUST be passed through
 in the <code>MESSAGE</code> frame.</p>
 
@@ -368,7 +464,7 @@ ack:client
 
 ^@</code></pre>
 
-<p>If the sever cannot successfully create the subscription, 
+<p>If the sever cannot successfully create the subscription,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
 <p>STOMP servers MAY support additional server specific headers to customize the
@@ -549,7 +645,7 @@ non <code>text/</code> mime types which can be interpreted as text. A good examp
 this would be a UTF-8 encoded XML. It's <code>content-type</code> SHOULD get set to
 <code>application/xml;charset=utf-8</code></p>
 
-<p>All STOMP clients and servers MUST support UTF-8 encoding and decoding.  Therefore, 
+<p>All STOMP clients and servers MUST support UTF-8 encoding and decoding.  Therefore,
 for maximum interoperability in a heterogeneous computing environment, it is
 RECOMMENDED that text based content be encoded with UTF-8.</p>
 
@@ -594,8 +690,8 @@ content-type:text/plain
 
 hello queue a^@</code></pre>
 
-<p><code>MESSAGE</code> frames SHOULD include a 
-<a href="#Header&#95;content-length"><code>content-length</code></a> header and a 
+<p><code>MESSAGE</code> frames SHOULD include a
+<a href="#Header&#95;content-length"><code>content-length</code></a> header and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <p><code>MESSAGE</code> frames will also include all user defined headers that were present
@@ -638,7 +734,7 @@ receipt:message-12345
 
 Hello queue a!
 -----
-Did not contain a destination header, which is REQUIRED 
+Did not contain a destination header, which is REQUIRED
 for message propagation.
 ^@</code></pre>
 
@@ -648,7 +744,7 @@ the error. For example, if the frame included a receipt header, the <code>ERROR<
 frame SHOULD set the <code>receipt-id</code> header to match the value of the <code>receipt</code>
 header of the frame which the error is related to.</p>
 
-<p><code>ERROR</code> frames SHOULD include a 
+<p><code>ERROR</code> frames SHOULD include a
 <a href="#Header&#95;content-length"><code>content-length</code></a> head and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
@@ -667,7 +763,7 @@ beginning of the STOMP session, by adding a <code>heart-beat</code> header to th
 separated by a comma.</p>
 
 <p>The first number represents what the sender of the frame can do (outgoing
-heart-beats): </p>
+heart-beats):</p>
 
 <ul>
 <li><p>0 means it cannot send heart-beats</p></li>
@@ -726,7 +822,7 @@ into account an error margin</p></li>
 
 <h2 id = "Augmented_BNF">Augmented BNF</h2>
 
-<p>A STOMP session can be more formally described using the 
+<p>A STOMP session can be more formally described using the
 Backus-Naur Form (BNF) grammar used in HTTP/1.1
 <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.1">rfc2616</a>.</p>
 
@@ -768,8 +864,8 @@ header-value        = *&lt;any OCTET except LF&gt;</code></pre>
 
 <h2 id = "License">License</h2>
 
-<p>This specification is licensed under the 
-<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution v2.5</a> 
+<p>This specification is licensed under the
+<a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution v2.5</a>
 license.</p>
         <div></div>
       </div>
