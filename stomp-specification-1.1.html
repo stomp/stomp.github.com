@@ -54,10 +54,8 @@
   <li><a href="#Conformance">Conformance</a></li>
   <li><a href="#STOMP_Frames">STOMP Frames</a></li>
   <li><ul style="list-style:none;">
-    <li><ul style="list-style:none;">
-      <li><a href="#Value_Encoding">Value Encoding</a></li>
-      <li><a href="#Size_Limits">Size Limits</a></li>
-    </ul></li>
+    <li><a href="#Value_Encoding">Value Encoding</a></li>
+    <li><a href="#Size_Limits">Size Limits</a></li>
     <li><a href="#Repeated_Header_Entries">Repeated Header Entries</a></li>
   </ul></li>
   <li><a href="#Connecting">Connecting</a></li>
@@ -230,7 +228,7 @@ multiple newlines. For more details, on how to parse STOMP frames, see the
 
 <p>All commands and header names referenced in this document are case sensitive.</p>
 
-<h4 id = "Value_Encoding">Value Encoding</h4>
+<h3 id = "Value_Encoding">Value Encoding</h3>
 
 <p>The commands and headers are encoded in UTF-8. All frames except the <code>CONNECT</code>
 and <code>CONNECTED</code> frames will also escape any colon or newline octets found in
@@ -264,7 +262,7 @@ values. This causes problems if applications want to send headers that SHOULD
 not get trimmed. In STOMP 1.1, clients and servers MUST never trim or pad
 headers with spaces.</p>
 
-<h4 id = "Size_Limits">Size Limits</h4>
+<h3 id = "Size_Limits">Size Limits</h3>
 
 <p>To prevent malicious clients from exploiting memory allocation in a
 server, servers MAY place maximum limits on:</p>
