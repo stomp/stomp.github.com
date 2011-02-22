@@ -621,7 +621,7 @@ abort&#33;</p>
 
 <h3 id = "DISCONNECT">DISCONNECT</h3>
 
-<p>A client can disconnect from the server at anytime by closing his socket but
+<p>A client can disconnect from the server at anytime by closing the socket but
 there is no guarantee that the previously sent frames have been received by
 the server. To do a graceful shutdown, where the client is assured that all
 previous frames have been received by the server, the client SHOULD:</p>
@@ -751,6 +751,7 @@ the body MAY contain more detailed information (or MAY be empty).</p>
 <pre><code>ERROR
 receipt-id:message-12345
 content-type:text/plain
+content-length:171
 message: malformed frame received
 
 The message:
@@ -773,7 +774,7 @@ frame SHOULD set the <code>receipt-id</code> header to match the value of the <c
 header of the frame which the error is related to.</p>
 
 <p><code>ERROR</code> frames SHOULD include a
-<a href="#Header&#95;content-length"><code>content-length</code></a> head and a
+<a href="#Header&#95;content-length"><code>content-length</code></a> header and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
 <h2 id = "Heart-beating">Heart-beating</h2>
