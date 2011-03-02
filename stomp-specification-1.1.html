@@ -653,7 +653,8 @@ header if a frame body is present. The header is a byte count for the length
 of the message body. If a <code>content-length</code> header is included, this number of
 bytes MUST be read, regardless of whether or not there are null characters in
 the body. The frame still needs to be terminated with a null byte. If a
-<code>content-length</code> is not specified, the first null byte encountered signals
+<code>content-length</code> is not specified, then the body MUST NOT contain any null
+characters within it since the first null byte encountered signals
 the end of the frame.</p>
 
 <h3 id = "Header_content-type">Header content-type</h3>
