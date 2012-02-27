@@ -22,7 +22,6 @@
     <meta content="The Simple Text Oriented Messaging Protocol" name="description"/>
     <meta content="stomp,messaging,mom,middleware,specification" name="keywords"/>
     <meta content="STOMP Specification" name="author"/>
-    <link type="text/css" rel="stylesheet" href="styles/impact/css/pygmentize.css"/>
     <link type="text/css" rel="stylesheet" href="styles/impact/css/site.css"/>
     <title></title>
   </head>
@@ -309,7 +308,7 @@ version:1.1
 
 ^@</code></pre>
 
-<p>The sever can reject any connection attempt. The server SHOULD respond back
+<p>The server can reject any connection attempt. The server SHOULD respond back
 with an <code>ERROR</code> frame listing why the connection was rejected and then close
 the connection. STOMP servers MUST support clients which rapidly connect and
 disconnect. This implies a server will likely only allow closed connections
