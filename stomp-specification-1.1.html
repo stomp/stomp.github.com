@@ -463,7 +463,7 @@ messages based on the application defined headers using a selector
 on a <code>SUBSCRIBE</code> frame. The user defined headers MUST be passed through
 in the <code>MESSAGE</code> frame.</p>
 
-<p>If the sever cannot successfully process the <code>SEND</code> frame for any reason,
+<p>If the sever cannot successfully process the <code>SEND</code> frame frame for any reason,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
 <h3 id = "SUBSCRIBE">SUBSCRIBE</h3>
@@ -722,7 +722,7 @@ messages.</p>
 
 <h3 id = "RECEIPT">RECEIPT</h3>
 
-<p>A <code>RECEIPT</code> frame is sent from the server to the client once a server has
+<p>A <code>RECEIPT</code> frame is sent from the server to the client once a server has has
 successfully processed a client frame that requests a receipt. A <code>RECEIPT</code>
 frame will include the header <code>receipt-id</code>, where the value is the value of
 the <code>receipt</code> header in the frame which this is a receipt for.</p>
