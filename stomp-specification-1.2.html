@@ -52,6 +52,7 @@
   <li><a href="#STOMP_Frames">STOMP Frames</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#Value_Encoding">Value Encoding</a></li>
+    <li><a href="#Body">Body</a></li>
     <li><a href="#Size_Limits">Size Limits</a></li>
     <li><a href="#Repeated_Header_Entries">Repeated Header Entries</a></li>
   </ul></li>
@@ -157,16 +158,25 @@ receiving messages from the server as <code>MESSAGE</code> frames.</p></li>
 
 <h3 id = "Changes_in_the_Protocol">Changes in the Protocol</h3>
 
-<p>STOMP 1.2 is fully backwards compatible with STOMP 1.1. It introduces no new
-features but focuses on clarifying some areas of the specification such as:</p>
+<p>STOMP 1.2 is mostly backwards compatible with STOMP 1.1. There are only two
+incompatible changes:</p>
+
+<ul>
+<li><p>it is now possible to end frame lines with carriage return plus line feed
+instead of only line feed</p></li>
+<li><p>message acknowledgment has been simplified and now uses a dedicated header</p></li>
+</ul>
+
+<p>Apart from these, STOMP 1.2 introduces no new features but focuses on clarifying
+some areas of the specification such as:</p>
 
 <ul>
 <li><p>repeated frame header entries</p></li>
 <li><p>use of the <code>content-type</code> header</p></li>
 <li><p>required support of the <code>STOMP</code> frame by servers</p></li>
 <li><p>connection lingering</p></li>
-<li><p>sequential processing of frames (FIXME)</p></li>
-<li><p>scope and uniqueness of subscription and transaction identifiers (FIXME)</p></li>
+<li><p>scope and uniqueness of subscription and transaction identifiers</p></li>
+<li><p>sequential processing of frames (FIXME: not yet done&hellip;)</p></li>
 </ul>
 
 <h3 id = "Design_Philosophy">Design Philosophy</h3>
@@ -210,35 +220,37 @@ header2:value2
 
 Body^@</code></pre>
 
-<p>The frame starts with a command string terminated by a newline. Following the
-command are zero or more header entries in <code>&lt;key&gt;:&lt;value&gt;</code> format. Each header
-entry is terminated by a newline. A blank line indicates the end of the
-headers and the beginning of the body. The body is then followed by the NULL
-octet (0x00). The examples in this document will use <code>^@</code>, control-@ in ASCII,
-to represent the NULL octet. The NULL octet can be optionally followed by
-multiple newlines. For more details, on how to parse STOMP frames, see the
-<a href="#Augmented&#95;BNF">Augmented BNF</a> section of this document.</p>
+<p>The frame starts with a command string terminated by an end-of-line (EOL),
+which consists of an OPTIONAL carriage return (octet 13) followed by a
+REQUIRED line feed (octet 10). Following the command are zero or more header
+entries in <code>&lt;key&gt;:&lt;value&gt;</code> format. Each header entry is terminated by an
+EOL. A blank line indicates the end of the headers and the beginning of the
+body. The body is then followed by the NULL octet. The examples in this
+document will use <code>^@</code>, control-@ in ASCII, to represent the NULL octet. The
+NULL octet can be optionally followed by multiple EOLs. For more details, on
+how to parse STOMP frames, see the <a href="#Augmented&#95;BNF">Augmented BNF</a> section
+of this document.</p>
 
 <p>All commands and header names referenced in this document are case sensitive.</p>
 
 <h3 id = "Value_Encoding">Value Encoding</h3>
 
 <p>The commands and headers are encoded in UTF-8. All frames except the <code>CONNECT</code>
-and <code>CONNECTED</code> frames will also escape any colon or newline octets found in
-the resulting UTF-8 encoded headers.</p>
+and <code>CONNECTED</code> frames will also escape any carriage return, line feed or colon
+found in the resulting UTF-8 encoded headers.</p>
 
 <p>Escaping is needed to allow header keys and values to contain those frame
 header delimiting octets as values. The <code>CONNECT</code> and <code>CONNECTED</code> frames do not
-escape the colon or newline octets in order to remain backward compatible with
-STOMP 1.0.</p>
+escape the carriage return, line feed or colon octets in order to remain backward
+compatible with STOMP 1.0.</p>
 
-<p>C style string literal escapes are used to encode any colons and newlines that
-are found within the UTF-8 encoded headers. When decoding frame headers, the
-following transformations MUST be applied:</p>
+<p>C style string literal escapes are used to encode any carriage return, line feed
+or colon that are found within the UTF-8 encoded headers. When decoding frame headers,
+the following transformations MUST be applied:</p>
 
 <ul>
 <li><code>\r</code> (octet 92 and 114) translates to carriage return (octet 13)</li>
-<li><code>\n</code> (octet 92 and 110) translates to newline (octet 10)</li>
+<li><code>\n</code> (octet 92 and 110) translates to line feed (octet 10)</li>
 <li><code>\c</code> (octet 92 and 99) translates to <code>:</code> (octet 58)</li>
 <li><code>\\</code> (octet 92 and 92) translates to <code>\</code> (octet 92)</li>
 </ul>
@@ -247,14 +259,16 @@ following transformations MUST be applied:</p>
 a fatal protocol error. Conversely when encoding frame headers, the reverse
 transformation MUST be applied.</p>
 
-<p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames MAY have a body. All other
-frames MUST NOT have a body.</p>
-
 <p>The STOMP 1.0 specification included many example frames with padding in the
 headers and many servers and clients were implemented to trim or pad header
 values. This causes problems if applications want to send headers that SHOULD
 not get trimmed. In STOMP 1.2, clients and servers MUST never trim or pad
 headers with spaces.</p>
+
+<h3 id = "Body">Body</h3>
+
+<p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames MAY have a body. All other
+frames MUST NOT have a body.</p>
 
 <h3 id = "Size_Limits">Size Limits</h3>
 
@@ -500,7 +514,7 @@ details.</p>
 <p>Since a single connection can have multiple open subscriptions with a
 server, an <code>id</code> header MUST be included in the frame to uniquely identify
 the subscription. The <code>id</code> header allows the client and server to relate
-subsequent <code>ACK</code>, <code>NACK</code> or <code>UNSUBSCRIBE</code> frames to the original subscription.</p>
+subsequent <code>MESSAGE</code> or <code>UNSUBSCRIBE</code> frames to the original subscription.</p>
 
 <p>Within the same connection, different subscriptions MUST use different
 subscription identifiers.</p>
@@ -518,22 +532,26 @@ to get dropped.</p>
 
 <p>When the the <code>ack</code> mode is <code>client</code>, then the client MUST send the server
 <code>ACK</code> frames for the messages it processes. If the connection fails before a
-client sends an <code>ACK</code> for the message the server will assume the message has
-not been processed and MAY redeliver the message to another client. The <code>ACK</code>
-frames sent by the client will be treated as a cumulative <code>ACK</code>. This means
-the <code>ACK</code> operates on the message specified in the <code>ACK</code> frame and all
-messages sent to the subscription before the <code>ACK</code>'ed message.</p>
+client sends an <code>ACK</code> frame for the message the server will assume the message
+has not been processed and MAY redeliver the message to another client. The
+<code>ACK</code> frames sent by the client will be treated as a cumulative acknowledgment.
+This means the acknowledgment operates on the message specified in the <code>ACK</code>
+frame and all messages sent to the subscription before the <code>ACK</code>'ed message.</p>
 
-<p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just
-like the <code>client</code> ack mode except that the <code>ACK</code> or <code>NACK</code> frames sent by the
-client are not cumulative. This means that an <code>ACK</code> or <code>NACK</code> for a
-subsequent message MUST NOT cause a previous message to get acknowledged.</p>
+<p>In case the client did not process some messages, it SHOULD send <code>NACK</code> frames
+to tell the server it did not consume these messages.</p>
+
+<p>When the the <code>ack</code> mode is <code>client-individual</code>, the acknowledgment operates just
+like the <code>client</code> acknowledgment mode except that the <code>ACK</code> or <code>NACK</code> frames
+sent by the client are not cumulative. This means that an <code>ACK</code> or <code>NACK</code>
+frame for a subsequent message MUST NOT cause a previous message to get
+acknowledged.</p>
 
 <h3 id = "UNSUBSCRIBE">UNSUBSCRIBE</h3>
 
 <p>The <code>UNSUBSCRIBE</code> frame is used to remove an existing subscription. Once the
 subscription is removed the STOMP connections will no longer receive messages
-from that destination.</p>
+from that subscription.</p>
 
 <p>Since a single connection can have multiple open subscriptions with a
 server, an <code>id</code> header MUST be included in the frame to uniquely identify
@@ -552,17 +570,15 @@ id:0
 <p><code>ACK</code> is used to acknowledge consumption of a message from a subscription
 using <code>client</code> or <code>client-individual</code> acknowledgment. Any messages received
 from such a subscription will not be considered to have been consumed until
-the message has been acknowledged via an <code>ACK</code> or a <code>NACK</code>.</p>
+the message has been acknowledged via an <code>ACK</code>.</p>
 
-<p><code>ACK</code> has two REQUIRED headers: <code>message-id</code>, which MUST contain a value
-matching the <code>message-id</code> for the <code>MESSAGE</code> being acknowledged and
-<code>subscription</code>, which MUST be set to match the value of the subscription's
-<code>id</code> header. Optionally, a <code>transaction</code> header MAY be specified, indicating
-that the message acknowledgment SHOULD be part of the named transaction.</p>
+<p>The <code>ACK</code> frame MUST include an <code>id</code> header matching the <code>ack</code> header of the
+<code>MESSAGE</code> being acknowledged. Optionally, a <code>transaction</code> header MAY be
+specified, indicating that the message acknowledgment SHOULD be part of the
+named transaction.</p>
 
 <pre><code>ACK
-subscription:0
-message-id:007
+id:12345
 transaction:tx1
 
 ^@</code></pre>
@@ -574,18 +590,18 @@ client did not consume the message. The server can then either send the
 message to a different client, discard it, or put it in a dead letter queue.
 The exact behavior is server specific.</p>
 
-<p><code>NACK</code> takes the same headers as <code>ACK</code>: <code>message-id</code> (REQUIRED),
-<code>subscription</code> (REQUIRED) and <code>transaction</code> (OPTIONAL).</p>
+<p><code>NACK</code> takes the same headers as <code>ACK</code>: <code>id</code> (REQUIRED) and <code>transaction</code>
+(OPTIONAL).</p>
 
-<p><code>NACK</code> applies either to one single message (if the subscription's ack mode
-is <code>client-individual</code>) or to all messages sent before and not yet <code>ACK</code>'ed
-or <code>NACK</code>'ed.</p>
+<p><code>NACK</code> applies either to one single message (if the subscription's <code>ack</code>
+mode is <code>client-individual</code>) or to all messages sent before and not yet
+<code>ACK</code>'ed or <code>NACK</code>'ed (if the subscription's <code>ack</code> mode is <code>client</code>).</p>
 
 <h3 id = "BEGIN">BEGIN</h3>
 
 <p><code>BEGIN</code> is used to start a transaction. Transactions in this case apply to
 sending and acknowledging - any messages sent or acknowledged during a
-transaction will be handled atomically based on the transaction.</p>
+transaction will be processed atomically based on the transaction.</p>
 
 <pre><code>BEGIN
 transaction:tx1
@@ -688,10 +704,10 @@ RECOMMENDED that text based content be encoded with UTF-8.</p>
 
 <h3 id = "Header_receipt">Header receipt</h3>
 
-<p>Any client frame other than <code>CONNECT</code> MAY specify a <code>receipt</code>
-header with an arbitrary value. This will cause the server to acknowledge
-receipt of the frame with a <code>RECEIPT</code> frame which contains the value of this
-header as the value of the <code>receipt-id</code> header in the <code>RECEIPT</code> frame.</p>
+<p>Any client frame other than <code>CONNECT</code> MAY specify a <code>receipt</code> header with an
+arbitrary value. This will cause the server to acknowledge the processing of
+the client frame with a <code>RECEIPT</code> frame (see the <a href="#RECEIPT">RECEIPT</a> frame
+for more details).</p>
 
 <pre><code>SEND
 destination:/queue/a
@@ -723,6 +739,12 @@ corresponding <code>SEND</code> frame.</p>
 identifier for that message and a <code>subscription</code> header matching the
 identifier of the subscription that is receiving the message.</p>
 
+<p>If the message is received from a subscription that requires explicit
+acknowledgment (either <code>client</code> or <code>client-individual</code> mode) then the
+<code>MESSAGE</code> frame MUST also contain an <code>ack</code> header with an arbitrary
+value. This header will be used to relate the message to a subsequent
+<code>ACK</code> or <code>NACK</code> frame.</p>
+
 <p>The frame body contains the contents of the message:</p>
 
 <pre><code>MESSAGE
@@ -747,15 +769,13 @@ messages.</p>
 
 <p>A <code>RECEIPT</code> frame is sent from the server to the client once a server has
 successfully processed a client frame that requests a receipt. A <code>RECEIPT</code>
-frame will include the header <code>receipt-id</code>, where the value is the value of
+frame MUST include the header <code>receipt-id</code>, where the value is the value of
 the <code>receipt</code> header in the frame which this is a receipt for.</p>
 
 <pre><code>RECEIPT
 receipt-id:message-12345
 
 ^@</code></pre>
-
-<p>The receipt body will be empty.</p>
 
 <h3 id = "ERROR">ERROR</h3>
 
@@ -871,8 +891,7 @@ direction, if heart-beats are expected every <code>&lt;n&gt;</code> milliseconds
 <ul>
 <li><p>the sender MUST send new data over the network connection at least every
 <code>&lt;n&gt;</code> milliseconds</p></li>
-<li><p>if the sender has no real STOMP frame to send, it MUST send a single
-newline octet (0x0A)</p></li>
+<li><p>if the sender has no real STOMP frame to send, it MUST send an end-of-line (EOL)</p></li>
 <li><p>if, inside a time window of at least <code>&lt;n&gt;</code> milliseconds, the receiver did
 not receive any new data, it MAY consider the connection as dead</p></li>
 <li><p>because of timing inaccuracies, the receiver SHOULD be tolerant and take
@@ -885,11 +904,11 @@ into account an error margin</p></li>
 Backus-Naur Form (BNF) grammar used in HTTP/1.1
 <a href="http://tools.ietf.org/html/rfc2616#section-2.1">RFC 2616</a>.</p>
 
-<pre><code>LF                  = &lt;US-ASCII new line (line feed) (octet 10)&gt;
+<pre><code>NULL                = &lt;US-ASCII null (octet 0)&gt;
+LF                  = &lt;US-ASCII line feed (aka newline) (octet 10)&gt;
 CR                  = &lt;US-ASCII carriage return (octet 13)&gt;
 EOL                 = [CR] LF 
 OCTET               = &lt;any 8-bit sequence of data&gt;
-NULL                = &lt;octet 0&gt;
 
 frame-stream        = 1*frame
 
