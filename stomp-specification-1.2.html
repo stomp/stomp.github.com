@@ -53,16 +53,23 @@
   <li><ul style="list-style:none;">
     <li><a href="#Value_Encoding">Value Encoding</a></li>
     <li><a href="#Body">Body</a></li>
-    <li><a href="#Size_Limits">Size Limits</a></li>
+    <li><a href="#Standard_Headers">Standard Headers</a></li>
+    <li><ul style="list-style:none;">
+      <li><a href="#Header_content-length">Header content-length</a></li>
+      <li><a href="#Header_content-type">Header content-type</a></li>
+      <li><a href="#Header_receipt">Header receipt</a></li>
+    </ul></li>
     <li><a href="#Repeated_Header_Entries">Repeated Header Entries</a></li>
+    <li><a href="#Size_Limits">Size Limits</a></li>
+    <li><a href="#Connection_Lingering">Connection Lingering</a></li>
   </ul></li>
   <li><a href="#Connecting">Connecting</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#CONNECT_or_STOMP_Frame">CONNECT or STOMP Frame</a></li>
     <li><a href="#CONNECTED_Frame">CONNECTED Frame</a></li>
+    <li><a href="#Protocol_Negotiation">Protocol Negotiation</a></li>
+    <li><a href="#Heart-beating">Heart-beating</a></li>
   </ul></li>
-  <li><a href="#Protocol_Negotiation">Protocol Negotiation</a></li>
-  <li><a href="#Once_Connected">Once Connected</a></li>
   <li><a href="#Client_Frames">Client Frames</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#SEND">SEND</a></li>
@@ -79,20 +86,13 @@
     <li><a href="#ABORT">ABORT</a></li>
     <li><a href="#DISCONNECT">DISCONNECT</a></li>
   </ul></li>
-  <li><a href="#Standard_Headers">Standard Headers</a></li>
-  <li><ul style="list-style:none;">
-    <li><a href="#Header_content-length">Header content-length</a></li>
-    <li><a href="#Header_content-type">Header content-type</a></li>
-    <li><a href="#Header_receipt">Header receipt</a></li>
-  </ul></li>
   <li><a href="#Server_Frames">Server Frames</a></li>
   <li><ul style="list-style:none;">
     <li><a href="#MESSAGE">MESSAGE</a></li>
     <li><a href="#RECEIPT">RECEIPT</a></li>
     <li><a href="#ERROR">ERROR</a></li>
-    <li><a href="#Connection_Lingering">Connection Lingering</a></li>
   </ul></li>
-  <li><a href="#Heart-beating">Heart-beating</a></li>
+  <li><a href="#Frames_and_Headers">Frames and Headers</a></li>
   <li><a href="#Augmented_BNF">Augmented BNF</a></li>
   <li><a href="#License">License</a></li>
 </ul></div></p>
@@ -172,7 +172,7 @@ some areas of the specification such as:</p>
 
 <ul>
 <li><p>repeated frame header entries</p></li>
-<li><p>use of the <code>content-type</code> header</p></li>
+<li><p>use of the <code>content-length</code> and <code>content-type</code> headers</p></li>
 <li><p>required support of the <code>STOMP</code> frame by servers</p></li>
 <li><p>connection lingering</p></li>
 <li><p>scope and uniqueness of subscription and transaction identifiers</p></li>
@@ -270,19 +270,55 @@ headers with spaces.</p>
 <p>Only the <code>SEND</code>, <code>MESSAGE</code>, and <code>ERROR</code> frames MAY have a body. All other
 frames MUST NOT have a body.</p>
 
-<h3 id = "Size_Limits">Size Limits</h3>
+<h3 id = "Standard_Headers">Standard Headers</h3>
 
-<p>To prevent malicious clients from exploiting memory allocation in a
-server, servers MAY place maximum limits on:</p>
+<p>Some headers MAY be used, and have special meaning, with most frames.</p>
 
-<ul>
-<li>the number of frame headers allowed in a single frame</li>
-<li>the maximum length of header lines</li>
-<li>the maximum size of a frame body</li>
-</ul>
+<h4 id = "Header_content-length">Header content-length</h4>
 
-<p>If these limits are exceeded the server SHOULD send the client an <code>ERROR</code>
-frame and then close the connection.</p>
+<p>All frames MAY include a <code>content-length</code> header. This header is an octet
+count for the length of the message body. If a <code>content-length</code> header is
+included, this number of octets MUST be read, regardless of whether or not
+there are NULL octets in the body. The frame still needs to be terminated
+with a NULL octet.</p>
+
+<p>If a frame body is present, the <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD
+include a <code>content-length</code> header to ease frame parsing. If the frame body
+contains NULL octets, the frame MUST include a <code>content-length</code> header.</p>
+
+<h4 id = "Header_content-type">Header content-type</h4>
+
+<p>If a frame body is present, the <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD
+include a <code>content-type</code> header to help the receiver of the frame interpret
+its body. If the <code>content-type</code> header is set, its value MUST be a MIME type
+which describes the format of the body. Otherwise, the receiver SHOULD
+consider the body to be a binary blob.</p>
+
+<p>The implied text encoding for MIME types starting with <code>text/</code> is UTF-8. If
+you are using a text based MIME type with a different encoding then you
+SHOULD append <code>;charset=&lt;encoding&gt;</code> to the MIME type. For example,
+<code>text/html;charset=utf-16</code> SHOULD be used if your sending an HTML body in
+UTF-16 encoding. The <code>;charset=&lt;encoding&gt;</code> SHOULD also get appended to any
+non <code>text/</code> MIME types which can be interpreted as text. A good example of
+this would be a UTF-8 encoded XML. Its <code>content-type</code> SHOULD get set to
+<code>application/xml;charset=utf-8</code></p>
+
+<p>All STOMP clients and servers MUST support UTF-8 encoding and decoding. Therefore,
+for maximum interoperability in a heterogeneous computing environment, it is
+RECOMMENDED that text based content be encoded with UTF-8.</p>
+
+<h4 id = "Header_receipt">Header receipt</h4>
+
+<p>Any client frame other than <code>CONNECT</code> MAY specify a <code>receipt</code> header with an
+arbitrary value. This will cause the server to acknowledge the processing of
+the client frame with a <code>RECEIPT</code> frame (see the <a href="#RECEIPT">RECEIPT</a> frame
+for more details).</p>
+
+<pre><code>SEND
+destination:/queue/a
+receipt:message-12345
+
+hello queue a^@</code></pre>
 
 <h3 id = "Repeated_Header_Entries">Repeated Header Entries</h3>
 
@@ -306,6 +342,32 @@ foo:Hello
 ^@</code></pre>
 
 <p>The value of the <code>foo</code> header is just <code>World</code>.</p>
+
+<h3 id = "Size_Limits">Size Limits</h3>
+
+<p>To prevent malicious clients from exploiting memory allocation in a
+server, servers MAY place maximum limits on:</p>
+
+<ul>
+<li>the number of frame headers allowed in a single frame</li>
+<li>the maximum length of header lines</li>
+<li>the maximum size of a frame body</li>
+</ul>
+
+<p>If these limits are exceeded the server SHOULD send the client an <code>ERROR</code>
+frame and then close the connection.</p>
+
+<h3 id = "Connection_Lingering">Connection Lingering</h3>
+
+<p>STOMP servers must be able to support clients which rapidly connect and
+disconnect.</p>
+
+<p>This implies a server will likely only allow closed connections to linger
+for short time before the connection is reset.</p>
+
+<p>As a consequence, a client may not receive the last frame sent by the server
+(for instance an <code>ERROR</code> frame or the <code>RECEIPT</code> frame in reply to a
+<code>DISCONNECT</code> frame) before the socket is reset.</p>
 
 <h2 id = "Connecting">Connecting</h2>
 
@@ -337,9 +399,9 @@ frame. STOMP 1.2 clients SHOULD continue to use the <code>CONNECT</code> command
 remain backward compatible with STOMP 1.0 servers.</p>
 
 <p>Clients that use the <code>STOMP</code> frame instead of the <code>CONNECT</code> frame will only
-be able to connect to STOMP 1.2 servers but the advantage is that a protocol
-sniffer/discriminator will be able to differentiate the STOMP connection from
-an HTTP connection.</p>
+be able to connect to STOMP 1.2 servers (as well as some STOMP 1.1 servers)
+but the advantage is that a protocol sniffer/discriminator will be able to
+differentiate the STOMP connection from an HTTP connection.</p>
 
 <p>STOMP 1.2 clients MUST set the following headers:</p>
 
@@ -390,7 +452,7 @@ number token.</p>
 <p><code>server:Apache/1.3.9</code></p></li>
 </ul>
 
-<h2 id = "Protocol_Negotiation">Protocol Negotiation</h2>
+<h3 id = "Protocol_Negotiation">Protocol Negotiation</h3>
 
 <p>From STOMP 1.1 and onwards, the <code>CONNECT</code> frame MUST include the
 <code>accept-version</code> header. It SHOULD be set to a comma separated list of
@@ -427,7 +489,78 @@ content-type:text/plain
 
 Supported protocol versions are 1.2 2.1^@</code></pre>
 
-<h2 id = "Once_Connected">Once Connected</h2>
+<h3 id = "Heart-beating">Heart-beating</h3>
+
+<p>Heart-beating can optionally be used to test the healthiness of the
+underlying TCP connection and to make sure that the remote end is alive and
+kicking.</p>
+
+<p>In order to enable heart-beating, each party has to declare what it can do
+and what it would like the other party to do. This happens at the very
+beginning of the STOMP session, by adding a <code>heart-beat</code> header to the
+<code>CONNECT</code> and <code>CONNECTED</code> frames.</p>
+
+<p>When used, the <code>heart-beat</code> header MUST contain two positive integers
+separated by a comma.</p>
+
+<p>The first number represents what the sender of the frame can do (outgoing
+heart-beats):</p>
+
+<ul>
+<li><p>0 means it cannot send heart-beats</p></li>
+<li><p>otherwise it is the smallest number of milliseconds between heart-beats
+that it can guarantee</p></li>
+</ul>
+
+<p>The second number represents what the sender of the frame would like
+to get (incoming heart-beats):</p>
+
+<ul>
+<li><p>0 means it does not want to receive heart-beats</p></li>
+<li><p>otherwise it is the desired number of milliseconds between heart-beats</p></li>
+</ul>
+
+<p>The <code>heart-beat</code> header is OPTIONAL. A missing <code>heart-beat</code> header MUST be
+treated the same way as a &ldquo;heart-beat:0,0&rdquo; header, that is: the party cannot
+send and does not want to receive heart-beats.</p>
+
+<p>The <code>heart-beat</code> header provides enough information so that each party can
+find out if heart-beats can be used, in which direction, and with which
+frequency.</p>
+
+<p>More formally, the initial frames look like:</p>
+
+<pre><code>CONNECT
+heart-beat:&lt;cx&gt;,&lt;cy&gt;
+
+CONNECTED:
+heart-beat:&lt;sx&gt;,&lt;sy&gt;</code></pre>
+
+<p>For heart-beats from the client to the server:</p>
+
+<ul>
+<li><p>if <code>&lt;cx&gt;</code> is 0 (the client cannot send heart-beats) or <code>&lt;sy&gt;</code> is 0 (the
+server does not want to receive heart-beats) then there will be none</p></li>
+<li><p>otherwise, there will be heart-beats every MAX(<code>&lt;cx&gt;</code>,<code>&lt;sy&gt;</code>) milliseconds</p></li>
+</ul>
+
+<p>In the other direction, <code>&lt;sx&gt;</code> and <code>&lt;cy&gt;</code> are used the same way.</p>
+
+<p>Regarding the heart-beats themselves, any new data received over the network
+connection is an indication that the remote end is alive. In a given
+direction, if heart-beats are expected every <code>&lt;n&gt;</code> milliseconds:</p>
+
+<ul>
+<li><p>the sender MUST send new data over the network connection at least every
+<code>&lt;n&gt;</code> milliseconds</p></li>
+<li><p>if the sender has no real STOMP frame to send, it MUST send an end-of-line (EOL)</p></li>
+<li><p>if, inside a time window of at least <code>&lt;n&gt;</code> milliseconds, the receiver did
+not receive any new data, it MAY consider the connection as dead</p></li>
+<li><p>because of timing inaccuracies, the receiver SHOULD be tolerant and take
+into account an error margin</p></li>
+</ul>
+
+<h2 id = "Client_Frames">Client Frames</h2>
 
 <p>A client MAY send a frame not in this list, but for such a frame a STOMP 1.2
 server MAY respond with an <code>ERROR</code> frame and then close the connection.</p>
@@ -443,8 +576,6 @@ server MAY respond with an <code>ERROR</code> frame and then close the connectio
 <li><a href="#NACK"><code>NACK</code></a></li>
 <li><a href="#DISCONNECT"><code>DISCONNECT</code></a></li>
 </ul>
-
-<h2 id = "Client_Frames">Client Frames</h2>
 
 <h3 id = "SEND">SEND</h3>
 
@@ -610,7 +741,8 @@ transaction:tx1
 
 <p>The <code>transaction</code> header is REQUIRED, and the transaction identifier will be
 used for <code>SEND</code>, <code>COMMIT</code>, <code>ABORT</code>, <code>ACK</code>, and <code>NACK</code> frames to bind them to
-the named transaction. Transaction identifiers MUST be unique per connection.</p>
+the named transaction. Within the same connection, different transactions MUST
+use different transaction identifiers.</p>
 
 <p>Any started transactions which have not been committed will be implicitly
 aborted if the client sends a <code>DISCONNECT</code> frame or if the TCP connection
@@ -666,54 +798,6 @@ client might never receive the expected <code>RECEIPT</code> frame. See the
 <a href="#Connection&#95;Lingering">Connection Lingering</a> section for more information.</p>
 
 <p>Clients MUST NOT send any more frames after the <code>DISCONNECT</code> frame is sent.</p>
-
-<h2 id = "Standard_Headers">Standard Headers</h2>
-
-<p>Some headers MAY be used, and have special meaning, with most frames.</p>
-
-<h3 id = "Header_content-length">Header content-length</h3>
-
-<p>The <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD include a <code>content-length</code>
-header if a frame body is present. If a frame's body contains NULL octets, the
-frame MUST include a <code>content-length</code> header. The header is an octet count for
-the length of the message body. If a <code>content-length</code> header is included, this
-number of octets MUST be read, regardless of whether or not there are NULL
-octets in the body. The frame still needs to be terminated with a NULL
-octet.</p>
-
-<h3 id = "Header_content-type">Header content-type</h3>
-
-<p>If a frame body is present, the <code>SEND</code>, <code>MESSAGE</code> and <code>ERROR</code> frames SHOULD
-include a <code>content-type</code> header to help the receiver of the frame interpret
-its body. If the <code>content-type</code> header is set, its value MUST be a MIME type
-which describes the format of the body. Otherwise, the receiver SHOULD
-consider the body to be a binary blob.</p>
-
-<p>The implied text encoding for MIME types starting with <code>text/</code> is UTF-8. If
-you are using a text based MIME type with a different encoding then you
-SHOULD append <code>;charset=&lt;encoding&gt;</code> to the MIME type. For example,
-<code>text/html;charset=utf-16</code> SHOULD be used if your sending an html body in
-UTF-16 encoding. The <code>;charset=&lt;encoding&gt;</code> SHOULD also get appended to any
-non <code>text/</code> MIME types which can be interpreted as text. A good example of
-this would be a UTF-8 encoded XML. Its <code>content-type</code> SHOULD get set to
-<code>application/xml;charset=utf-8</code></p>
-
-<p>All STOMP clients and servers MUST support UTF-8 encoding and decoding. Therefore,
-for maximum interoperability in a heterogeneous computing environment, it is
-RECOMMENDED that text based content be encoded with UTF-8.</p>
-
-<h3 id = "Header_receipt">Header receipt</h3>
-
-<p>Any client frame other than <code>CONNECT</code> MAY specify a <code>receipt</code> header with an
-arbitrary value. This will cause the server to acknowledge the processing of
-the client frame with a <code>RECEIPT</code> frame (see the <a href="#RECEIPT">RECEIPT</a> frame
-for more details).</p>
-
-<pre><code>SEND
-destination:/queue/a
-receipt:message-12345
-
-hello queue a^@</code></pre>
 
 <h2 id = "Server_Frames">Server Frames</h2>
 
@@ -815,88 +899,78 @@ header of the frame which the error is related to.</p>
 <a href="#Header&#95;content-length"><code>content-length</code></a> header and a
 <a href="#Header&#95;content-type"><code>content-type</code></a> header if a body is present.</p>
 
-<h3 id = "Connection_Lingering">Connection Lingering</h3>
+<h2 id = "Frames_and_Headers">Frames and Headers</h2>
 
-<p>STOMP servers must be able to support clients which rapidly connect and
-disconnect.</p>
-
-<p>This implies a server will likely only allow closed connections to linger
-for short time before the connection is reset.</p>
-
-<p>As a consequence, a client may not receive the last frame sent by the server
-(for instance an <code>ERROR</code> frame or the <code>RECEIPT</code> frame in reply to a
-<code>DISCONNECT</code> frame) before the socket is reset.</p>
-
-<h2 id = "Heart-beating">Heart-beating</h2>
-
-<p>Heart-beating can optionally be used to test the healthiness of the
-underlying TCP connection and to make sure that the remote end is alive and
-kicking.</p>
-
-<p>In order to enable heart-beating, each party has to declare what it can do
-and what it would like the other party to do. This happens at the very
-beginning of the STOMP session, by adding a <code>heart-beat</code> header to the
-<code>CONNECT</code> and <code>CONNECTED</code> frames.</p>
-
-<p>When used, the <code>heart-beat</code> header MUST contain two positive integers
-separated by a comma.</p>
-
-<p>The first number represents what the sender of the frame can do (outgoing
-heart-beats):</p>
+<p>In addition to the <a href="#Standard&#95;Headers">standard headers</a> described above
+(<code>content-length</code>, <code>content-type</code> and <code>receipt</code>), here are all the headers
+defined in this specification that each frame MUST or MAY use:</p>
 
 <ul>
-<li><p>0 means it cannot send heart-beats</p></li>
-<li><p>otherwise it is the smallest number of milliseconds between heart-beats
-that it can guarantee</p></li>
-</ul>
-
-<p>The second number represents what the sender of the frame would like
-to get (incoming heart-beats):</p>
-
+<li><code>CONNECT</code> or <code>STOMP</code>
 <ul>
-<li><p>0 means it does not want to receive heart-beats</p></li>
-<li><p>otherwise it is the desired number of milliseconds between heart-beats</p></li>
-</ul>
-
-<p>The <code>heart-beat</code> header is OPTIONAL. A missing <code>heart-beat</code> header MUST be
-treated the same way as a &ldquo;heart-beat:0,0&rdquo; header, that is: the party cannot
-send and does not want to receive heart-beats.</p>
-
-<p>The <code>heart-beat</code> header provides enough information so that each party can
-find out if heart-beats can be used, in which direction, and with which
-frequency.</p>
-
-<p>More formally, the initial frames look like:</p>
-
-<pre><code>CONNECT
-heart-beat:&lt;cx&gt;,&lt;cy&gt;
-
-CONNECTED:
-heart-beat:&lt;sx&gt;,&lt;sy&gt;</code></pre>
-
-<p>For heart-beats from the client to the server:</p>
-
+<li>REQUIRED: <code>accept-version</code>, <code>host</code></li>
+<li>OPTIONAL: <code>login</code>, <code>passcode</code>, <code>heart-beat</code></li>
+</ul></li>
+<li><code>CONNECTED</code>
 <ul>
-<li><p>if <code>&lt;cx&gt;</code> is 0 (the client cannot send heart-beats) or <code>&lt;sy&gt;</code> is 0 (the
-server does not want to receive heart-beats) then there will be none</p></li>
-<li><p>otherwise, there will be heart-beats every MAX(<code>&lt;cx&gt;</code>,<code>&lt;sy&gt;</code>) milliseconds</p></li>
-</ul>
-
-<p>In the other direction, <code>&lt;sx&gt;</code> and <code>&lt;cy&gt;</code> are used the same way.</p>
-
-<p>Regarding the heart-beats themselves, any new data received over the network
-connection is an indication that the remote end is alive. In a given
-direction, if heart-beats are expected every <code>&lt;n&gt;</code> milliseconds:</p>
-
+<li>REQUIRED: <code>version</code></li>
+<li>OPTIONAL: <code>session</code>, <code>server</code>, <code>heart-beat</code></li>
+</ul></li>
+<li><code>SEND</code>
 <ul>
-<li><p>the sender MUST send new data over the network connection at least every
-<code>&lt;n&gt;</code> milliseconds</p></li>
-<li><p>if the sender has no real STOMP frame to send, it MUST send an end-of-line (EOL)</p></li>
-<li><p>if, inside a time window of at least <code>&lt;n&gt;</code> milliseconds, the receiver did
-not receive any new data, it MAY consider the connection as dead</p></li>
-<li><p>because of timing inaccuracies, the receiver SHOULD be tolerant and take
-into account an error margin</p></li>
+<li>REQUIRED: <code>destination</code></li>
+<li>OPTIONAL: <code>transaction</code></li>
+</ul></li>
+<li><code>SUBSCRIBE</code>
+<ul>
+<li>REQUIRED: <code>destination</code>, <code>id</code></li>
+<li>OPTIONAL: <code>ack</code></li>
+</ul></li>
+<li><code>UNSUBSCRIBE</code>
+<ul>
+<li>REQUIRED: <code>id</code></li>
+<li>OPTIONAL: none</li>
+</ul></li>
+<li><code>ACK</code> or <code>NACK</code>
+<ul>
+<li>REQUIRED: <code>id</code></li>
+<li>OPTIONAL: <code>transaction</code></li>
+</ul></li>
+<li><code>BEGIN</code> or <code>COMMIT</code> or <code>ABORT</code>
+<ul>
+<li>REQUIRED: <code>transaction</code></li>
+<li>OPTIONAL: none</li>
+</ul></li>
+<li><code>DISCONNECT</code>
+<ul>
+<li>REQUIRED: none</li>
+<li>OPTIONAL: none</li>
+</ul></li>
+<li><code>MESSAGE</code>
+<ul>
+<li>REQUIRED: <code>destination</code>, <code>message-id</code>, <code>subscription</code></li>
+<li>OPTIONAL: <code>ack</code></li>
+</ul></li>
+<li><code>RECEIPT</code>
+<ul>
+<li>REQUIRED: <code>receipt-id</code></li>
+<li>OPTIONAL: none</li>
+</ul></li>
+<li><code>ERROR</code>
+<ul>
+<li>REQUIRED: none</li>
+<li>OPTIONAL: <code>message</code></li>
+</ul></li>
 </ul>
+
+<p>In addition, the <code>SEND</code> and <code>MESSAGE</code> frames MAY include arbitrary user
+defined headers that SHOULD be considered as being part of the carried
+message. Also, the <code>ERROR</code> frame SHOULD include additional headers to help
+identify the original frame that caused the error.</p>
+
+<p>Finally, STOMP servers MAY use additional headers to give access to features
+like persistency or expiration. Consult your server's documentation for
+details.</p>
 
 <h2 id = "Augmented_BNF">Augmented BNF</h2>
 
