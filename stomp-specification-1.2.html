@@ -176,7 +176,7 @@ some areas of the specification such as:</p>
 <li><p>required support of the <code>STOMP</code> frame by servers</p></li>
 <li><p>connection lingering</p></li>
 <li><p>scope and uniqueness of subscription and transaction identifiers</p></li>
-<li><p>sequential processing of frames (FIXME: not yet done&hellip;)</p></li>
+<li><p>meaning of the <code>RECEIPT</code> frame with regard to previous frames</p></li>
 </ul>
 
 <h3 id = "Design_Philosophy">Design Philosophy</h3>
@@ -860,6 +860,13 @@ the <code>receipt</code> header in the frame which this is a receipt for.</p>
 receipt-id:message-12345
 
 ^@</code></pre>
+
+<p>A <code>RECEIPT</code> frame is an acknowledgment that the corresponding client frame
+has been <em>processed</em> by the server. Since STOMP is stream based, the receipt
+is also a cumulative acknowledgment that all the previous frames have been
+<em>received</em> by the server. However, these previous frames may not yet be
+fully <em>processed</em>. If the client disconnects, previously received frames
+SHOULD continue to get processed by the server.</p>
 
 <h3 id = "ERROR">ERROR</h3>
 
