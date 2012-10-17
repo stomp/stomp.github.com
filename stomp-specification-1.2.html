@@ -150,9 +150,9 @@ semantics that they can support with STOMP.</p>
 modes:</p>
 
 <ul>
-<li><p>As a producer, sending messages to a destination on the server via a <code>SEND</code>
+<li><p>as a producer, sending messages to a destination on the server via a <code>SEND</code>
 frame</p></li>
-<li><p>As a consumer, sending a <code>SUBSCRIBE</code> frame for a given destination and
+<li><p>as a consumer, sending a <code>SUBSCRIBE</code> frame for a given destination and
 receiving messages from the server as <code>MESSAGE</code> frames.</p></li>
 </ul>
 
@@ -223,13 +223,13 @@ Body^@</code></pre>
 <p>The frame starts with a command string terminated by an end-of-line (EOL),
 which consists of an OPTIONAL carriage return (octet 13) followed by a
 REQUIRED line feed (octet 10). Following the command are zero or more header
-entries in <code>&lt;key&gt;:&lt;value&gt;</code> format. Each header entry is terminated by an
-EOL. A blank line indicates the end of the headers and the beginning of the
-body. The body is then followed by the NULL octet. The examples in this
-document will use <code>^@</code>, control-@ in ASCII, to represent the NULL octet. The
-NULL octet can be optionally followed by multiple EOLs. For more details, on
-how to parse STOMP frames, see the <a href="#Augmented&#95;BNF">Augmented BNF</a> section
-of this document.</p>
+entries in <code>&lt;key&gt;:&lt;value&gt;</code> format. Each header entry is terminated by an EOL.
+A blank line (i.e. an extra EOL) indicates the end of the headers and the
+beginning of the body. The body is then followed by the NULL octet. The
+examples in this document will use <code>^@</code>, control-@ in ASCII, to represent
+the NULL octet. The NULL octet can be optionally followed by multiple EOLs.
+For more details, on how to parse STOMP frames, see the
+<a href="#Augmented&#95;BNF">Augmented BNF</a> section of this document.</p>
 
 <p>All commands and header names referenced in this document are case sensitive.</p>
 
@@ -480,7 +480,7 @@ version:1.1
 ^@</code></pre>
 
 <p>If the client and server do not share any common protocol versions, then the
-sever SHOULD respond with an <code>ERROR</code> frame similar to the following and then
+sever MUST respond with an <code>ERROR</code> frame similar to the following and then
 close the connection:</p>
 
 <pre><code>ERROR
@@ -655,13 +655,13 @@ subscription identifiers.</p>
 <p>The valid values for the <code>ack</code> header are <code>auto</code>, <code>client</code>, or
 <code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
 
-<p>When the the <code>ack</code> mode is <code>auto</code>, then the client does not need to send the
+<p>When the <code>ack</code> mode is <code>auto</code>, then the client does not need to send the
 server <code>ACK</code> frames for the messages it receives. The server will assume the
-client has received the message as soon as it sends it to the the client.
+client has received the message as soon as it sends it to the client.
 This acknowledgment mode can cause messages being transmitted to the client
 to get dropped.</p>
 
-<p>When the the <code>ack</code> mode is <code>client</code>, then the client MUST send the server
+<p>When the <code>ack</code> mode is <code>client</code>, then the client MUST send the server
 <code>ACK</code> frames for the messages it processes. If the connection fails before a
 client sends an <code>ACK</code> frame for the message the server will assume the message
 has not been processed and MAY redeliver the message to another client. The
@@ -672,7 +672,7 @@ frame and all messages sent to the subscription before the <code>ACK</code>'ed m
 <p>In case the client did not process some messages, it SHOULD send <code>NACK</code> frames
 to tell the server it did not consume these messages.</p>
 
-<p>When the the <code>ack</code> mode is <code>client-individual</code>, the acknowledgment operates just
+<p>When the <code>ack</code> mode is <code>client-individual</code>, the acknowledgment operates just
 like the <code>client</code> acknowledgment mode except that the <code>ACK</code> or <code>NACK</code> frames
 sent by the client are not cumulative. This means that an <code>ACK</code> or <code>NACK</code>
 frame for a subsequent message MUST NOT cause a previous message to get
