@@ -480,7 +480,7 @@ version:1.1
 ^@</code></pre>
 
 <p>If the client and server do not share any common protocol versions, then the
-sever MUST respond with an <code>ERROR</code> frame similar to the following and then
+server MUST respond with an <code>ERROR</code> frame similar to the following and then
 close the connection:</p>
 
 <pre><code>ERROR
@@ -533,7 +533,7 @@ frequency.</p>
 <pre><code>CONNECT
 heart-beat:&lt;cx&gt;,&lt;cy&gt;
 
-CONNECTED:
+CONNECTED
 heart-beat:&lt;sx&gt;,&lt;sy&gt;</code></pre>
 
 <p>For heart-beats from the client to the server:</p>
@@ -612,7 +612,7 @@ messages based on the application defined headers using a selector
 on a <code>SUBSCRIBE</code> frame. The user defined headers MUST be passed through
 in the <code>MESSAGE</code> frame.</p>
 
-<p>If the sever cannot successfully process the <code>SEND</code> frame for any reason,
+<p>If the server cannot successfully process the <code>SEND</code> frame for any reason,
 the server MUST send the client an <code>ERROR</code> frame and then close the connection.</p>
 
 <h3 id = "SUBSCRIBE">SUBSCRIBE</h3>
@@ -633,7 +633,7 @@ ack:client
 
 ^@</code></pre>
 
-<p>If the sever cannot successfully create the subscription,
+<p>If the server cannot successfully create the subscription,
 the server MUST send the client an <code>ERROR</code> frame and then close the connection.</p>
 
 <p>STOMP servers MAY support additional server specific headers to customize the
@@ -882,7 +882,7 @@ empty).</p>
 receipt-id:message-12345
 content-type:text/plain
 content-length:171
-message: malformed frame received
+message:malformed frame received
 
 The message:
 -----

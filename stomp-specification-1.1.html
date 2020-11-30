@@ -401,7 +401,7 @@ version:1.1
 ^@</code></pre>
 
 <p>If the client and server do not share any common protocol versions, then the
-sever SHOULD respond with an <code>ERROR</code> frame similar to:</p>
+server SHOULD respond with an <code>ERROR</code> frame similar to:</p>
 
 <pre><code>ERROR
 version:1.2,2.1
@@ -463,7 +463,7 @@ messages based on the application defined headers using a selector
 on a <code>SUBSCRIBE</code> frame. The user defined headers MUST be passed through
 in the <code>MESSAGE</code> frame.</p>
 
-<p>If the sever cannot successfully process the <code>SEND</code> frame frame for any reason,
+<p>If the server cannot successfully process the <code>SEND</code> frame for any reason,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
 <h3 id = "SUBSCRIBE">SUBSCRIBE</h3>
@@ -484,7 +484,7 @@ ack:client
 
 ^@</code></pre>
 
-<p>If the sever cannot successfully create the subscription,
+<p>If the server cannot successfully create the subscription,
 the server MUST send the client an <code>ERROR</code> frame and disconnect the client.</p>
 
 <p>STOMP servers MAY support additional server specific headers to customize the
@@ -504,20 +504,20 @@ subscription.</p>
 <p>The valid values for the <code>ack</code> header are <code>auto</code>, <code>client</code>, or
 <code>client-individual</code>. If the header is not set, it defaults to <code>auto</code>.</p>
 
-<p>When the the <code>ack</code> mode is <code>auto</code>, then the client does not need to send the
+<p>When the <code>ack</code> mode is <code>auto</code>, then the client does not need to send the
 server <code>ACK</code> frames for the messages it receives. The server will assume the
-client has received the message as soon as it sends it to the the client.
+client has received the message as soon as it sends it to the client.
 This acknowledgment mode can cause messages being transmitted to the client
 to get dropped.</p>
 
-<p>When the the <code>ack</code> mode is <code>client</code>, then the client MUST send the server
+<p>When the <code>ack</code> mode is <code>client</code>, then the client MUST send the server
 <code>ACK</code> frames for the messages it processes. If the connection fails before a
 client sends an <code>ACK</code> for the message the server will assume the message has
 not been processed and MAY redeliver the message to another client. The <code>ACK</code>
 frames sent by the client will be treated as a cumulative <code>ACK</code>. This means the <code>ACK</code> operates on the message specified in the <code>ACK</code> frame
 and all messages sent to the subscription before the <code>ACK</code>-ed message.</p>
 
-<p>When the the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just
+<p>When the <code>ack</code> mode is <code>client-individual</code>, the ack mode operates just
 like the <code>client</code> ack mode except that the <code>ACK</code> or <code>NACK</code> frames sent by the
 client are not cumulative. This means that an <code>ACK</code> or <code>NACK</code> for a
 subsequent message MUST NOT cause a previous message to get acknowledged.</p>
@@ -813,7 +813,7 @@ frequency.</p>
 <pre><code>CONNECT
 heart-beat:&lt;cx&gt;,&lt;cy&gt;
 
-CONNECTED:
+CONNECTED
 heart-beat:&lt;sx&gt;,&lt;sy&gt;</code></pre>
 
 <p>For heart-beats from the client to the server:</p>
