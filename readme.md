@@ -1,8 +1,11 @@
 Overview
 --------
 
-This is the static website generated using 
-[Scalate](http://scalate.fusesource.org).  The source of for
-the website can be found at:
+This static website is generated using 
+[Scalate](https://scalate.github.io/scalate/).
 
-[stomp-spec project](http://github.com/stomp/stomp-spec)
+Its sources can be found at:
+[stomp-spec project](http://github.com/stomp/stomp-spec/).
+
+Issues and pull requests should be submitted
+[there](http://github.com/stomp/stomp-spec/).
