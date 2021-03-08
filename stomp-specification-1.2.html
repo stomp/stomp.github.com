@@ -440,7 +440,7 @@ See <a href="#Protocol&#95;Negotiation">Protocol Negotiation</a> for more detail
 <li><p><code>session</code> : A session identifier that uniquely identifies the session.</p></li>
 <li><p><code>server</code> : A field that contains information about the STOMP server.
 The field MUST contain a server-name field and MAY be followed by optional 
-comment fields delimited by a space character.</p>
+comment fields delimited by a space octet.</p>
 
 <p>The server-name field consists of a name token followed by an optional version
 number token.</p>
@@ -881,7 +881,7 @@ empty).</p>
 <pre><code>ERROR
 receipt-id:message-12345
 content-type:text/plain
-content-length:171
+content-length:170
 message:malformed frame received
 
 The message:
